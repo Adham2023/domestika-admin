@@ -1,8 +1,9 @@
 import axios from 'axios'
-import { MessageBox, Message } from 'element-ui'
+import { Message } from 'element-ui'
 import store from '@/store'
-import { getToken } from '@/utils/auth'
-
+// import { getAccessToken, getRefreshToken} from '@/utils/auth'
+import localStorageService from '@/utils/LocalStorageService'
+const lcStorage = localStorageService.getService()
 // create an axios instance
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
@@ -13,18 +14,15 @@ const service = axios.create({
 // request interceptor
 service.interceptors.request.use(
   config => {
-    // do something before request is sent
-
+    console.log('has token', store.getters.token)
     if (store.getters.token) {
-      // let each request carry token
-      // ['X-Token'] is a custom headers key
-      // please modify it according to the actual situation
-      config.headers['X-Token'] = getToken()
+      config.headers['Authorization'] = 'Bearer ' + lcStorage.getAccessToken()
     }
+    console.log('befire sending: ')
+    console.dir(config)
     return config
   },
   error => {
-    // do something with request error
     console.log(error) // for debug
     return Promise.reject(error)
   }
@@ -32,53 +30,45 @@ service.interceptors.request.use(
 
 // response interceptor
 service.interceptors.response.use(
-  /**
-   * If you want to get http information such as headers or status
-   * Please return  response => response
-  */
-
-  /**
-   * Determine the request status by custom code
-   * Here is just an example
-   * You can also judge the status by HTTP Status Code
-   */
   response => {
-    const res = response.data
-
-    // if the custom code is not 20000, it is judged as an error.
-    if (res.code !== 20000) {
+    // const res = response.data
+    console.dir(response)
+    return response
+  },
+  error => {
+    const originalRequest = error.config;
+    console.log('from interseptor error config: ' ) // for debug
+    let url = error.config.url.split('/');
+    url = url[url.length - 1];
+    console.log('url: ', url);
+    let statusCode = error.response.status
+    console.log('statusCode: ', statusCode)
+    console.log(`statusCode === 401 && url !== 'refresh-access-token'`, statusCode === 401 && url !== 'refresh-access-token')
+    if (statusCode === 401 && url !== 'refresh-access-token') {
+      console.log('refreshing...')
+      return service({
+        url: '/admin/refresh-access-token',
+        method: "POST",
+        data: {
+          refreshToken: lcStorage.getRefreshToken()
+        }
+      }).then(response =>  {
+        console.log('response after refresh')
+        console.log(response.data.accessToken)
+        lcStorage.setAccessToken(response.data.accessToken)
+        service.defaults.headers.common['Authorization'] ='Bearer ' + response.data.accessToken;
+        console.log('sending again:')
+        console.dir(service);
+        return service(originalRequest)
+      })
+    } else {
       Message({
-        message: res.message || 'Error',
+        message: error.message,
         type: 'error',
         duration: 5 * 1000
       })
-
-      // 50008: Illegal token; 50012: Other clients logged in; 50014: Token expired;
-      if (res.code === 50008 || res.code === 50012 || res.code === 50014) {
-        // to re-login
-        MessageBox.confirm('You have been logged out, you can cancel to stay on this page, or log in again', 'Confirm logout', {
-          confirmButtonText: 'Re-Login',
-          cancelButtonText: 'Cancel',
-          type: 'warning'
-        }).then(() => {
-          store.dispatch('user/resetToken').then(() => {
-            location.reload()
-          })
-        })
-      }
-      return Promise.reject(new Error(res.message || 'Error'))
-    } else {
-      return res
+      return Promise.reject(error)
     }
-  },
-  error => {
-    console.log('err' + error) // for debug
-    Message({
-      message: error.message,
-      type: 'error',
-      duration: 5 * 1000
-    })
-    return Promise.reject(error)
   }
 )
 

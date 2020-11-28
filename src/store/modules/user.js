@@ -1,10 +1,11 @@
-import { login, logout, getInfo } from '@/api/user'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { login, getInfo } from '@/api/user'
+import localStorageService from '@/utils/LocalStorageService'
 import { resetRouter } from '@/router'
-
+const lcStorage = localStorageService.getService()
+console.log('ls: ', lcStorage)
 const getDefaultState = () => {
   return {
-    token: getToken(),
+    token: lcStorage.getAccessToken(),
     name: '',
     avatar: ''
   }
@@ -16,7 +17,7 @@ const mutations = {
   RESET_STATE: (state) => {
     Object.assign(state, getDefaultState())
   },
-  SET_TOKEN: (state, token) => {
+  SET_ACCEESS_TOKEN: (state, token) => {
     state.token = token
   },
   SET_NAME: (state, name) => {
@@ -34,8 +35,9 @@ const actions = {
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
         const { data } = response
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
+        console.log('data from action: ', data)
+        commit('SET_ACCEESS_TOKEN', data.accessToken)
+        lcStorage.setToken({ access_token: data.accessToken, refresh_token: data.refreshToken })
         resolve()
       }).catch(error => {
         reject(error)
@@ -48,15 +50,14 @@ const actions = {
     return new Promise((resolve, reject) => {
       getInfo(state.token).then(response => {
         const { data } = response
-
+        console.log('from get info response: ', response)
         if (!data) {
           return reject('Verification failed, please Login again.')
         }
-
-        const { name, avatar } = data
-
-        commit('SET_NAME', name)
-        commit('SET_AVATAR', avatar)
+        const { userName, avatar } = data[0]
+        console.log('name: ', userName, ' avatar: ', avatar)
+        commit('SET_NAME', userName)
+        commit('SET_AVATAR', process.env.VUE_APP_BASE_API + '/' + avatar)
         resolve(data)
       }).catch(error => {
         reject(error)
@@ -65,23 +66,19 @@ const actions = {
   },
 
   // user logout
-  logout({ commit, state }) {
-    return new Promise((resolve, reject) => {
-      logout(state.token).then(() => {
-        removeToken() // must remove  token  first
-        resetRouter()
-        commit('RESET_STATE')
-        resolve()
-      }).catch(error => {
-        reject(error)
-      })
+  logout({ commit }) {
+    return new Promise((resolve) => {
+      lcStorage.clearToken()
+      resetRouter()
+      commit('RESET_STATE')
+      resolve()
     })
   },
 
   // remove token
   resetToken({ commit }) {
     return new Promise(resolve => {
-      removeToken() // must remove  token  first
+      lcStorage.clearToken()
       commit('RESET_STATE')
       resolve()
     })
