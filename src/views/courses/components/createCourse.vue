@@ -4,28 +4,64 @@
     color="#324157"
     title="New Course"
     subtitle=""
+    ref="formWizardRef"
     class="frm-wzrd"
   >
-    <tab-content class="tb-cnt" title="Initiate coure" icon="el-icon-folder-add">
-      <stepOne />
+    <tab-content
+      :before-change="checkStepOne"
+      class="tb-cnt"
+      title="Initiate coure"
+      icon="el-icon-folder-add"
+    >
+      <stepOne ref="stepOneRef" />
     </tab-content>
-    <tab-content class="tb-cnt" icon="el-icon-notebook-2" title="Add chaptes and units">
-      <stepTwo />
+    <tab-content
+      class="tb-cnt"
+      icon="el-icon-notebook-2"
+      title="Create chaptes"
+      :before-change="checkStepTwo"
+    >
+      <stepTwo ref="stepTwoRef"/>
     </tab-content>
-    <tab-content class="tb-cnt" icon="el-icon-finished" title="Preview and Save">
+    <tab-content class="tb-cnt" icon="el-icon-document-add" title="Add units">
       <stepThree />
     </tab-content>
+    <tab-content
+      class="tb-cnt"
+      icon="el-icon-finished"
+      title="Preview and Save"
+    >
+      <stepFour />
+    </tab-content>
+    <!-- <div  slot-scope="props" slot="custom-buttons-left">  -->
+    <el-button
+      v-if="counter > 0"
+      size="medium"
+      type="danger"
+      slot="custom-buttons-left"
+      @click="resetAllForms()"
+      >Cancel</el-button
+    >
+    <!-- </div> -->
+    <el-dialog title="" :visible.sync="cancelDialogVisible" width="30%">
+      <span>Are you sure want to cancel new course creation?</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="cancelDialogVisible = false">No</el-button>
+        <el-button type="primary" @click="confirmed()">Yes</el-button>
+      </span>
+    </el-dialog>
   </form-wizard>
 </template>
 
 <script>
-import { FormWizard, TabContent } from 'vue-form-wizard'
-import 'vue-form-wizard/dist/vue-form-wizard.min.css'
+import { FormWizard, TabContent } from "vue-form-wizard";
+import "vue-form-wizard/dist/vue-form-wizard.min.css";
 
 // steps
-import stepOne from './subComponents/stepOne'
-import stepTwo from './subComponents/stepTwo'
-import stepThree from './subComponents/stepThree'
+import stepOne from "./subComponents/stepOne";
+import stepTwo from "./subComponents/stepTwo";
+import stepThree from "./subComponents/stepThree";
+import stepFour from "./subComponents/stepFour";
 
 export default {
   components: {
@@ -33,9 +69,39 @@ export default {
     TabContent,
     stepOne,
     stepTwo,
-    stepThree
-  }
-}
+    stepThree,
+    stepFour,
+  },
+  data() {
+    return {
+      cancelDialogVisible: false,
+      counter: 0,
+    };
+  },
+  methods: {
+    confirmed() {
+      this.$refs.formWizardRef.reset();
+      this.counter = 0;
+      this.$refs.stepOneRef.resetFields();
+      this.cancelDialogVisible = false;
+    },
+    resetAllForms() {
+      console.dir(this.$refs.formWizardRef);
+      this.cancelDialogVisible = true;
+    },
+    checkStepOne() {
+      this.counter++;
+      return new Promise((resolve, reject) => {
+        resolve(this.$refs.stepOneRef.validateForm());
+      });
+    },
+    checkStepTwo() {
+      return new Promise((resolve, reject) => {
+        resolve(this.$refs.stepTwoRef.validateStepTwo());
+      });
+    }
+  },
+};
 </script>
 
 <style >
