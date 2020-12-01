@@ -5,19 +5,18 @@
   >
     <el-col :span="10" :offset="7" style="margin-bottom: 1rem">
       <el-button
-        @click="newCourseDialogVisible = true"
         icon="el-icon-plus"
         style="border: 1px solid transparent; font-weight: bold"
-        >New chapter</el-button
-      >
+        @click="newCourseDialogVisible = true"
+      >New chapter</el-button>
     </el-col>
     <el-col :span="10" :offset="7" style="text-align: center">
-      <p style="color: gray" v-if="$store.state.newCourse.chapters.length == 0">
+      <p v-if="$store.state.newCourse.chapters.length === 0" style="color: gray">
         There is no chapter
       </p>
       <el-card
-        v-else
         v-for="chapter in $store.state.newCourse.chapters"
+        v-else
         :key="chapter.id"
         shadow="hover"
         style="margin-bottom: 1rem"
@@ -28,14 +27,14 @@
             style="float: right; padding: 3px 0; color: red"
             type="text"
             icon="el-icon-delete"
-          ></el-button>
+          />
           <el-button
             style="margin-right: 1rem; float: right; padding: 3px 0"
             type="text"
             icon="el-icon-edit"
-          ></el-button>
+          />
         </div>
-        <div  class="text item">
+        <div class="text item">
           {{ chapter.chapterDescription }}
         </div>
       </el-card>
@@ -53,85 +52,86 @@
     >
       <el-row style="width: 100%; height: 100%; border: 0px solid red">
         <el-col :span="24">
-          <el-form :model="newChapterForm" :rules="rules" ref="addFormRef">
+          <el-form ref="addFormRef" :model="newChapterForm" :rules="rules">
             <el-form-item label="Chapter title" prop="chapterTitle">
-              <el-input v-model="newChapterForm.chapterTitle"></el-input>
+              <el-input v-model="newChapterForm.chapterTitle" />
             </el-form-item>
             <el-form-item label="Chapter description" prop="chapterDescription">
               <el-input
-                type="textarea"
                 v-model="newChapterForm.chapterDescription"
-              ></el-input>
+                type="textarea"
+              />
             </el-form-item>
           </el-form>
         </el-col>
       </el-row>
       <span slot="footer" class="dialog-footer">
         <el-button @click="cancelAddingNewChapter()">Cancel</el-button>
-        <el-button type="primary" @click="validateAddNewChapterForm()"
-          >Add</el-button
-        >
+        <el-button
+          type="primary"
+          @click="validateAddNewChapterForm()"
+        >Add</el-button>
       </span>
     </el-dialog>
   </el-row>
 </template>
 
 <script>
-import { title } from "@/settings";
-import { Message } from 'element-ui';
+import { Message } from 'element-ui'
 export default {
   data() {
     return {
       newCourseDialogVisible: false,
       newChapterForm: {
-        chapterTitle: "",
-        chapterDescription: "",
+        chapterTitle: '',
+        chapterDescription: ''
+
       },
       rules: {
         chapterTitle: [
           {
             required: true,
-            trigger: "change",
-            message: "Please give a title to new chapter",
-          },
-        ],
-      },
-    };
+            trigger: 'change',
+            message: 'Please give a title to new chapter'
+          }
+        ]
+      }
+    }
   },
   methods: {
     validateStepTwo() {
-      if(this.$store.state.newCourse.chapters.length == 0) {
+      if (this.$store.state.newCourse.chapters.length === 0) {
         Message({
-          message: "Add at least one chapter",
+          message: 'Add at least one chapter',
           type: 'warning',
           duration: 2500
         })
       }
-      return this.$store.state.newCourse.chapters.length > 0;
+      return this.$store.state.newCourse.chapters.length > 0
     },
     cancelAddingNewChapter() {
-      this.$refs.addFormRef.resetFields();
+      this.$refs.addFormRef.resetFields()
       this.newChapterForm = {
-        chapterTitle: "",
-        chapterDescription: "",
-      };
-      this.newCourseDialogVisible = false;
+        chapterTitle: '',
+        chapterDescription: ''
+      }
+      this.newCourseDialogVisible = false
     },
     addNewChapter() {
-      this.$store.commit("newCourse/ADD_CHAPTER", {
+      this.$store.commit('newCourse/ADD_CHAPTER', {
         chapterTitle: this.newChapterForm.chapterTitle,
-        chapterDescription: this.newChapterForm.chapterDescription,
-      });
-      this.cancelAddingNewChapter();
+        chapterDescription: this.newChapterForm.chapterDescription
+      })
+      this.cancelAddingNewChapter()
     },
     validateAddNewChapterForm() {
       this.$refs.addFormRef.validate((valid) => {
-        if (!valid) return false;
-        this.addNewChapter();
-      });
-    },
-  },
-};
+        if (!valid) return false
+        this.addNewChapter()
+      })
+    }
+  }
+}
 </script>
 
 <style>

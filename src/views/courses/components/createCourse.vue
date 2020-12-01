@@ -1,10 +1,10 @@
 <template>
   <form-wizard
+    ref="formWizardRef"
     step-size="xs"
     color="#324157"
     title="New Course"
     subtitle=""
-    ref="formWizardRef"
     class="frm-wzrd"
   >
     <tab-content
@@ -21,7 +21,7 @@
       title="Create chaptes"
       :before-change="checkStepTwo"
     >
-      <stepTwo ref="stepTwoRef"/>
+      <stepTwo ref="stepTwoRef" />
     </tab-content>
     <tab-content class="tb-cnt" icon="el-icon-document-add" title="Add units">
       <stepThree />
@@ -36,12 +36,11 @@
     <!-- <div  slot-scope="props" slot="custom-buttons-left">  -->
     <el-button
       v-if="counter > 0"
+      slot="custom-buttons-left"
       size="medium"
       type="danger"
-      slot="custom-buttons-left"
       @click="resetAllForms()"
-      >Cancel</el-button
-    >
+    >Cancel</el-button>
     <!-- </div> -->
     <el-dialog title="" :visible.sync="cancelDialogVisible" width="30%">
       <span>Are you sure want to cancel new course creation?</span>
@@ -54,14 +53,14 @@
 </template>
 
 <script>
-import { FormWizard, TabContent } from "vue-form-wizard";
-import "vue-form-wizard/dist/vue-form-wizard.min.css";
+import { FormWizard, TabContent } from 'vue-form-wizard'
+import 'vue-form-wizard/dist/vue-form-wizard.min.css'
 
 // steps
-import stepOne from "./subComponents/stepOne";
-import stepTwo from "./subComponents/stepTwo";
-import stepThree from "./subComponents/stepThree";
-import stepFour from "./subComponents/stepFour";
+import stepOne from './subComponents/stepOne'
+import stepTwo from './subComponents/stepTwo'
+import stepThree from './subComponents/stepThree'
+import stepFour from './subComponents/stepFour'
 
 export default {
   components: {
@@ -70,38 +69,39 @@ export default {
     stepOne,
     stepTwo,
     stepThree,
-    stepFour,
+    stepFour
   },
   data() {
     return {
       cancelDialogVisible: false,
-      counter: 0,
-    };
+      counter: 0
+    }
   },
   methods: {
     confirmed() {
-      this.$refs.formWizardRef.reset();
-      this.counter = 0;
-      this.$refs.stepOneRef.resetFields();
-      this.cancelDialogVisible = false;
+      this.$refs.formWizardRef.reset()
+      this.counter = 0
+      this.$refs.stepOneRef.resetFields()
+      this.$store.commit('newCourse/RESET_CHAPTERS')
+      this.cancelDialogVisible = false
     },
     resetAllForms() {
-      console.dir(this.$refs.formWizardRef);
-      this.cancelDialogVisible = true;
+      console.dir(this.$refs.formWizardRef)
+      this.cancelDialogVisible = true
     },
     checkStepOne() {
-      this.counter++;
+      this.counter++
       return new Promise((resolve, reject) => {
-        resolve(this.$refs.stepOneRef.validateForm());
-      });
+        resolve(this.$refs.stepOneRef.validateForm())
+      })
     },
     checkStepTwo() {
       return new Promise((resolve, reject) => {
-        resolve(this.$refs.stepTwoRef.validateStepTwo());
-      });
+        resolve(this.$refs.stepTwoRef.validateStepTwo())
+      })
     }
-  },
-};
+  }
+}
 </script>
 
 <style >

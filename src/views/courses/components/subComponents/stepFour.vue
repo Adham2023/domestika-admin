@@ -1,6 +1,6 @@
 <template>
   <div>
-    Four
+    {{ $store.state.newCourse.chapters }}
   </div>
 </template>
 
