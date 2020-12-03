@@ -7,6 +7,7 @@ const state = {
   chapters: []
 }
 
+
 const mutations = {
   RESET_CHAPTERS(state) {
     state.chapters = []
