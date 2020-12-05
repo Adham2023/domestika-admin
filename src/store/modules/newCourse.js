@@ -4,11 +4,21 @@ const state = {
     courseDescription: '',
     coursePreviewVideo: null
   },
-  chapters: []
+  chapters: [],
+  allResources: {},
+  fileUploadProgress: 0
 }
 
-
 const mutations = {
+  SET_UPLOAD_PROGRESS(state, progress) {
+    state.fileUploadProgress = progress
+  },
+  ADD_RESOURCE(state, fileName) {
+    state.allResources[fileName] = fileName
+  },
+  REMOVE_RESOURCE(state, fileName) {
+    state.allResources[fileName] = undefined
+  },
   RESET_CHAPTERS(state) {
     state.chapters = []
   },
