@@ -19,7 +19,7 @@
         style="margin-left: 1rem"
       >
         <el-button
-          :disabled="currentChapterID == null"
+          :disabled="currentChapterID === null"
           style="border: 1px solid transparent"
           icon="el-icon-plus"
           @click="addUnitDialog = true"
@@ -32,7 +32,7 @@
     </el-col>
     <el-col :span="24"><el-divider /></el-col>
     <el-col :span="12" :offset="6">
-      <p v-if="currentUnits.length == 0" style="color: gray">
+      <p v-if="currentUnits.length === 0" style="color: gray">
         There is no unit
       </p>
       <el-card
@@ -50,12 +50,13 @@
             style="float: right; padding: 3px 0; color: red"
             type="text"
             icon="el-icon-delete"
-          />
+          ></el-button>
           <el-button
             style="margin-right: 1rem; float: right; padding: 3px 0"
             type="text"
             icon="el-icon-edit"
-          />
+            @click="openEditUnitDialog(unit.id)"
+          ></el-button>
         </div>
         <div class="text item">
           {{ unit.unitDescription }}
@@ -83,6 +84,7 @@
       width="40%"
     >
       <el-row style="width: 100%; height: 100%; border: 0px solid red">
+        {{ fileList }}
         <el-col :span="24">
           <el-form ref="addUnitFormRef" :model="newUnit" :rules="rules">
             <el-form-item label="Unit title" prop="unitTitle">
@@ -93,7 +95,7 @@
                 <el-form-item label=" " prop="unitVideo">
                   <span style="font-weight: bolder">Video</span>
                   <el-upload
-                    ref="upload"
+                    ref="uploadStepThree"
                     style="
                       text-align: center;
                       padding: 1rem;
@@ -101,10 +103,12 @@
                       border-radius: 8px;
                     "
                     class="upload-demo"
-                    name="coursePreview"
-                    :auto-upload="false"
-                    action=""
-                    :on-remove="fileRemoved"
+                    name="resource"
+                    :auto-upload="true"
+                    :before-remove="checkIfResouceCanBeDeleted"
+                    :on-remove="removingUnitVideo"
+                    accept="video/*"
+                    action="http://192.168.43.129:3001/course/uploadResource"
                     :file-list="fileList"
                     :multiple="false"
                     :on-change="fileChanged"
@@ -135,8 +139,10 @@
                       border-radius: 8px;
                     "
                     class="upload-demo"
-                    :auto-upload="false"
-                    action=""
+                    :auto-upload="true"
+                    :multiple="true"
+                    name="resource"
+                    action="http://192.168.43.129:3001/course/uploadResource"
                     :on-change="resourceSelected"
                     :on-remove="resFileRemoved"
                     :file-list="resourceFileList"
@@ -167,12 +173,19 @@
         >Add unit</el-button>
       </span>
     </el-dialog>
+    <editUnit />
   </el-row>
 </template>
 
 <script>
 import { mapState, mapGetters } from 'vuex'
+import { deleteResource } from '@/api/courses'
+// import { MessageBox } from 'element-ui'
+import  editUnit from './editUnit'
 export default {
+  components: {
+    editUnit
+  },
   data() {
     return {
       currentChapterID: null,
@@ -181,7 +194,7 @@ export default {
         unitTitle: '',
         unitDescription: '',
         unitResources: [],
-        unitVideo: null
+        unitVideo: ''
       },
       fileList: [],
       resourceFileList: [],
@@ -189,7 +202,7 @@ export default {
         unitVideo: [
           {
             validator: (rule, value, cb) => {
-              if (value === null) {
+              if (value === '') {
                 return cb(new Error())
               } else {
                 return cb()
@@ -222,18 +235,50 @@ export default {
       return ''
     },
     currentUnits() {
-      if (this.currentChapterID !== null) { return this.units(this.currentChapterID) }
+      if (this.currentChapterID !== null) {
+        return this.units(this.currentChapterID)
+      }
       return []
     }
   },
   methods: {
+    openEditUnitDialog(id) {
+      console.log("Current unit id: ", id);
+      this.$store.commit('newCourse/SET_DIALOG_TRIGGER', {name: 'editUnitDialog', value: true})
+    },
+    checkIfResouceCanBeDeleted(file, fileList) {
+      return new Promise((resolve, reject) => {
+        deleteResource(file.name)
+          .then((res) => {
+            console.log(res.data)
+            resolve(true)
+          })
+          .catch((err) => {
+            console.error(err)
+            reject(false)
+          })
+      })
+    },
     resourceSelected(file, fileList) {
       this.resourceFileList = fileList
     },
     resFileRemoved(file, fileList) {
       this.resourceFileList = fileList
+      deleteResource(file.name).then(res => {
+        this.$notify({
+          title: 'Success',
+          message: res.data,
+          type: 'success'
+        })
+      }).catch(err => {
+        this.$notify({
+          title: 'Error',
+          message: err.response.data,
+          type: 'error'
+        })
+      })
     },
-    fileRemoved(file, fileList) {
+    removingUnitVideo(file, fileList) {
       this.newUnit.unitVideo = null
       this.$refs.addUnitFormRef.validate((valid) => {
         if (!valid) return false
@@ -241,23 +286,31 @@ export default {
       })
     },
     fileChanged(file, fileList) {
-      this.newUnit.unitVideo = file.raw
-      console.log('unit video: ', this.newUnit.unitVideo)
-      this.fileList.push(file)
-      if (this.fileList.length > 1) {
-        this.fileList.shift()
+      if (file.status === 'success') {
+        this.newUnit.unitVideo = file;
+        this.fileList.push(file)
+        if (this.fileList.length > 1) {
+          const a = this.fileList.shift()
+          console.log('shifted data: ', a)
+          deleteResource(a.name)
+            .then((res) => {
+              console.log(res.data)
+            })
+            .catch((err) => console.error(err))
+        }
+        console.log('after length: ', this.fileList.length)
+
+        this.$refs.addUnitFormRef.validate((valid) => {
+          if (!valid) return false
+        })
       }
-      this.$refs.addUnitFormRef.validate((valid) => {
-        if (!valid) return false
-        // this.addUnit();
-      })
     },
     chapterChanged(chapter) {},
     addUnit() {
       console.log('resources: ')
       this.resourceFileList.forEach((item) => {
         console.dir(item)
-        this.newUnit.unitResources.push(item.raw)
+        this.newUnit.unitResources.push(item)
       })
       const newUnitObj = {
         chapterId: this.currentChapterID,

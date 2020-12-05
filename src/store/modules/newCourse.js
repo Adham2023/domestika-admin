@@ -6,10 +6,23 @@ const state = {
   },
   chapters: [],
   allResources: {},
-  fileUploadProgress: 0
+  fileUploadProgress: 0,
+  editChapterDialog: false,
+  editUnitDialog: false,
+  currentEditingChapterId: '',
+  currentEditingUnitId: ''
 }
 
 const mutations = {
+  SET_CURRENT_CHAPTER(state, id) {
+    state.currentEditingChapterId = id
+  },
+  SET_CURRENT_UNIT(state, id) {
+    state.currentEditingChapterId = id
+  },
+  SET_DIALOG_TRIGGER(state, triggerObj) {
+    state[triggerObj.name] = triggerObj.value
+  },
   SET_UPLOAD_PROGRESS(state, progress) {
     state.fileUploadProgress = progress
   },
