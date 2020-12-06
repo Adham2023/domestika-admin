@@ -15,6 +15,7 @@ service.interceptors.request.use(
     if (store.getters.token) {
       config.headers['Authorization'] = 'Bearer ' + lcStorage.getAccessToken()
     }
+    console.dir(config)
     return config
   },
   error => {

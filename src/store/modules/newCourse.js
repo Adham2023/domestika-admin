@@ -2,7 +2,8 @@ const state = {
   courseInfo: {
     courseTitle: '',
     courseDescription: '',
-    coursePreviewVideo: null
+    coursePreviewVideo: null,
+    coursePrice: null 
   },
   chapters: [],
   allResources: {},
@@ -10,14 +11,23 @@ const state = {
   editChapterDialog: false,
   editUnitDialog: false,
   currentEditingChapterId: '',
-  currentEditingUnitId: ''
+  currentEditingUnitId: '',
+  currentChapterId: '',
+  currentUnitId: '',
+  percentage: 0
 }
 
 const mutations = {
-  SET_CURRENT_CHAPTER(state, id) {
-    state.currentEditingChapterId = id
+  set_precentage(state, percentage) {
+    state.percentage = percentage
   },
-  SET_CURRENT_UNIT(state, id) {
+  SET_CURRENT_CHAPTER_E(state, id) {
+    state.currentChapterId = id
+  },
+  SET_CURRENT_UNIT_E(state, id) {
+    state.currentUnitId = id
+  },
+  SET_CURRENT_CHAPTER(state, id) {
     state.currentEditingChapterId = id
   },
   SET_DIALOG_TRIGGER(state, triggerObj) {
@@ -66,6 +76,24 @@ const mutations = {
     const indexOfChapter = state.chapters.findIndex(chapter => chapter.id === updatedChapter.id)
     state.chapters[indexOfChapter].chapterTitle = updatedChapter.chapterTitle
     state.chapters[indexOfChapter].chapterDescription = updatedChapter.chapterDescription
+  },
+  EDIT_UNIT(state, unitEditObj) {
+    state
+      .chapters[unitEditObj
+        .chapterIndex]
+      .units[unitEditObj.unitIndex].unitTitle = unitEditObj.unitTitle
+    state
+      .chapters[unitEditObj
+        .chapterIndex]
+      .units[unitEditObj.unitIndex].unitDescription = unitEditObj.unitDescription
+    state
+      .chapters[unitEditObj
+        .chapterIndex]
+      .units[unitEditObj.unitIndex].unitResources = unitEditObj.unitResources
+    state
+      .chapters[unitEditObj
+        .chapterIndex]
+      .units[unitEditObj.unitIndex].unitVideo = unitEditObj.unitVideo
   },
   SET_COURSE_PREVIEW_VIDEO(state, video) {
     state.courseInfo.coursePreviewVideo = video

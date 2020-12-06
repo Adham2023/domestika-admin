@@ -1,6 +1,8 @@
 <template>
   <div>
     <vueJsonPretty
+    :showLine="true"
+    :path="'res'"
       :data="[$store.state.newCourse.courseInfo, $store.state.newCourse.chapters]"
     />
   </div>

@@ -50,13 +50,13 @@
             style="float: right; padding: 3px 0; color: red"
             type="text"
             icon="el-icon-delete"
-          ></el-button>
+          />
           <el-button
             style="margin-right: 1rem; float: right; padding: 3px 0"
             type="text"
             icon="el-icon-edit"
             @click="openEditUnitDialog(unit.id)"
-          ></el-button>
+          />
         </div>
         <div class="text item">
           {{ unit.unitDescription }}
@@ -84,7 +84,6 @@
       width="40%"
     >
       <el-row style="width: 100%; height: 100%; border: 0px solid red">
-        {{ fileList }}
         <el-col :span="24">
           <el-form ref="addUnitFormRef" :model="newUnit" :rules="rules">
             <el-form-item label="Unit title" prop="unitTitle">
@@ -105,10 +104,10 @@
                     class="upload-demo"
                     name="resource"
                     :auto-upload="true"
-                    :before-remove="checkIfResouceCanBeDeleted"
+                    :http-request="uploadResouces"
                     :on-remove="removingUnitVideo"
                     accept="video/*"
-                    action="http://192.168.43.129:3001/course/uploadResource"
+                    action="string"
                     :file-list="fileList"
                     :multiple="false"
                     :on-change="fileChanged"
@@ -142,7 +141,8 @@
                     :auto-upload="true"
                     :multiple="true"
                     name="resource"
-                    action="http://192.168.43.129:3001/course/uploadResource"
+                    action="string"
+                    :http-request="uploadResouces"
                     :on-change="resourceSelected"
                     :on-remove="resFileRemoved"
                     :file-list="resourceFileList"
@@ -179,9 +179,9 @@
 
 <script>
 import { mapState, mapGetters } from 'vuex'
-import { deleteResource } from '@/api/courses'
-// import { MessageBox } from 'element-ui'
-import  editUnit from './editUnit'
+import { deleteResource, uploadResource } from '@/api/courses'
+import axios from 'axios'
+import editUnit from './editUnit'
 export default {
   components: {
     editUnit
@@ -196,7 +196,9 @@ export default {
         unitResources: [],
         unitVideo: ''
       },
+      cancelTokenSource: {},
       fileList: [],
+      uploadUrl: process.env.VUE_APP_BASE_API,
       resourceFileList: [],
       rules: {
         unitVideo: [
@@ -242,61 +244,78 @@ export default {
     }
   },
   methods: {
-    openEditUnitDialog(id) {
-      console.log("Current unit id: ", id);
-      this.$store.commit('newCourse/SET_DIALOG_TRIGGER', {name: 'editUnitDialog', value: true})
-    },
-    checkIfResouceCanBeDeleted(file, fileList) {
-      return new Promise((resolve, reject) => {
-        deleteResource(file.name)
-          .then((res) => {
-            console.log(res.data)
-            resolve(true)
-          })
-          .catch((err) => {
-            console.error(err)
-            reject(false)
-          })
+    uploadResouces(param) {
+      this.cancelTokenSource[param.file.name] = axios.CancelToken.source()
+      const uploadData = new FormData()
+      uploadData.append('resource', param.file)
+      console.log('this is upload data: ', uploadData)
+      uploadResource({
+        cancelTokenSource: this.cancelTokenSource[param.file.name],
+        formData: uploadData
       })
+        .then((res) => {
+          console.log(res.data)
+          param.onSuccess()
+        })
+        .catch((err) => {
+          param.onError(err)
+        })
+    },
+    openEditUnitDialog(id) {
+      console.log('Current unit id: ', id)
+      this.$store.commit('newCourse/SET_DIALOG_TRIGGER', {
+        name: 'editUnitDialog',
+        value: true
+      })
+      this.$store.commit(
+        'newCourse/SET_CURRENT_CHAPTER_E',
+        this.currentChapterID
+      )
+      this.$store.commit('newCourse/SET_CURRENT_UNIT_E', id)
     },
     resourceSelected(file, fileList) {
       this.resourceFileList = fileList
     },
     resFileRemoved(file, fileList) {
+      this.cancelTokenSource[file.name].cancel()
       this.resourceFileList = fileList
-      deleteResource(file.name).then(res => {
-        this.$notify({
-          title: 'Success',
-          message: res.data,
-          type: 'success'
-        })
-      }).catch(err => {
-        this.$notify({
-          title: 'Error',
-          message: err.response.data,
-          type: 'error'
-        })
-      })
+      this.deleteFile(file.name)
     },
     removingUnitVideo(file, fileList) {
+      this.cancelTokenSource[file.name].cancel()
       this.newUnit.unitVideo = null
+      this.fileList = []
+      this.deleteFile(file.name)
       this.$refs.addUnitFormRef.validate((valid) => {
         if (!valid) return false
         // this.addUnit();
       })
     },
+    deleteFile(name) {
+      deleteResource(name)
+        .then((res) => {
+          this.$notify({
+            title: 'Success',
+            message: res.data.message,
+            type: 'success'
+          })
+        })
+        .catch((err) => {
+          this.$notify({
+            title: 'Error',
+            message: err.response.data,
+            type: 'error'
+          })
+        })
+    },
     fileChanged(file, fileList) {
-      if (file.status === 'success') {
-        this.newUnit.unitVideo = file;
+      if (file.status === 'ready') {
+        this.newUnit.unitVideo = file
         this.fileList.push(file)
         if (this.fileList.length > 1) {
           const a = this.fileList.shift()
           console.log('shifted data: ', a)
-          deleteResource(a.name)
-            .then((res) => {
-              console.log(res.data)
-            })
-            .catch((err) => console.error(err))
+          this.deleteFile(a.name)
         }
         console.log('after length: ', this.fileList.length)
 
@@ -309,7 +328,6 @@ export default {
     addUnit() {
       console.log('resources: ')
       this.resourceFileList.forEach((item) => {
-        console.dir(item)
         this.newUnit.unitResources.push(item)
       })
       const newUnitObj = {
@@ -319,7 +337,6 @@ export default {
         unitResources: this.newUnit.unitResources,
         unitVideo: this.newUnit.unitVideo
       }
-      console.log('newUnitObj: ', newUnitObj)
       this.$store.commit('newCourse/ADD_UNIT', newUnitObj)
       this.cancelAddingUnit()
     },

@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-// import store from '@/store/index'
+import store from '@/store/index'
 export function getListOfCourses() {
   return request({
     url: '/course/all-courses',
@@ -22,16 +22,18 @@ export function getACourse(params) {
   })
 }
 
-export function uploadResource(fromData) {
+export function uploadResource(params) {
   return request({
-    'Content-Type': 'multipart/form-data',
-    onUploadProgress: (progress) => {
-      // store.commit('newCourse/SET_UPLOAD_PROGRESS', progress)
-      console.log('on progress', progress)
+    cancelToken: params.cancelTokenSource.token,
+    headers: { 'Content-Type': 'multipart/form-data' },
+    onUploadProgress: progress => {
+      console.log('progress: ', Math.floor((progress.loaded / progress.total) * 100) + ' %')
+      store.commit('newCourse/set_precentage', Math.floor((progress.loaded / progress.total) * 100))
     },
     url: '/course/uploadResource',
     method: 'POST',
-    fromData
+    data: params.formData,
+    timeout: 10 * 60 * 1000
   })
 }
 

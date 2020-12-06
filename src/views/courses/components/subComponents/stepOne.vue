@@ -72,16 +72,15 @@
                 :on-remove="removingFile"
                 accept="video/*"
                 :before-remove="checkIfResouceCanBeDeleted"
-                action="http://192.168.43.129:3001/course/uploadResource"
+                action="string"
+                :http-request="uploadPreviewVideo"
                 :file-list="fileList"
                 :multiple="false"
                 :on-change="fileChanged"
               >
-                <el-button
-                  slot="trigger"
-                  size="small"
-                  type="primary"
-                >Select preview video</el-button>
+                <el-button slot="trigger" size="small" type="primary"
+                  >Select preview video</el-button
+                >
                 <div slot="tip" class="el-upload__tip">
                   choose your preview video for the course
                 </div>
@@ -91,117 +90,159 @@
         </el-form-item>
       </el-form>
     </el-col>
+    <el-col>
+      <video
+        width="100%"
+        controls
+        class="myvideo"
+        ref="videoFile"
+        style="height: 100%"
+      >
+        <source src="mov_bbb.mp4" id="video_here" />
+        Your browser does not support HTML5 video.
+      </video>
+    </el-col>
   </el-row>
 </template>
 
 <script>
-import { deleteResource } from '@/api/courses'
+import { deleteResource, uploadResource } from "@/api/courses";
+import axios from "axios";
 export default {
   data() {
     return {
       stepOneForm: {
-        courseTitle: '',
-        description: '',
+        courseTitle: "",
+        description: "",
         file: null,
-        price: ''
+        price: null,
       },
+      cancelTokenSource: null,
+      uploadUrl: process.env.VUE_APP_BASE_API,
       fileList: [],
       rules: {
         price: [
           {
             required: true,
-            message: 'Please enter course price',
-            trigger: 'change'
-          }
+            message: "Please enter course price",
+            trigger: "change",
+          },
         ],
         courseTitle: [
-          { required: true, trigger: 'change', message: 'Please give a title' }
+          { required: true, trigger: "change", message: "Please give a title" },
         ],
         file: [
           {
             validator: (rule, value, cb) => {
               if (value === null) {
-                return cb(new Error())
+                return cb(new Error());
               } else {
-                cb()
+                cb();
               }
             },
             required: true,
-            trigger: 'change',
-            message: 'Please select preview video'
-          }
-        ]
-      }
-    }
+            trigger: "change",
+            message: "Please select preview video",
+          },
+        ],
+      },
+    };
+  },
+  computed: {
+    format(percentage) {
+      return percentage === 100 ? "Full" : `${percentage}%`;
+    },
   },
   methods: {
-    resetFields() {
-      this.$refs.stepOneFormRef.resetFields()
-      this.fileList = []
-      this.$store.commit('newCourse/SET_COURSE_PREVIEW_VIDEO', null)
-      this.$store.commit('newCourse/SET_COURSE_TEXT_INFO', {
-        courseTitle: '',
-        description: ''
+    uploadPreviewVideo(param) {
+      this.cancelTokenSource = axios.CancelToken.source();
+      const uploadData = new FormData();
+      uploadData.append("resource", param.file);
+      console.log("this is upload data: ", uploadData);
+      uploadResource({
+        cancelTokenSource: this.cancelTokenSource,
+        formData: uploadData,
       })
+        .then((res) => {
+          console.log(res.data);
+          param.onSuccess();
+        })
+        .catch((err) => {
+          param.onError(err);
+        });
+    },
+    resetFields() {
+      this.$refs.stepOneFormRef.resetFields();
+      this.fileList = [];
+      this.$store.commit("newCourse/SET_COURSE_PREVIEW_VIDEO", null);
+      this.$store.commit("newCourse/SET_COURSE_TEXT_INFO", {
+        courseTitle: "",
+        description: "",
+      });
     },
     checkIfResouceCanBeDeleted(file, fileList) {
       return new Promise((resolve, reject) => {
         deleteResource(file.name)
           .then((res) => {
-            console.log(res.data)
-            resolve(true)
+            console.log(res.data);
+            resolve(true);
           })
           .catch((err) => {
-            console.error(err)
-            reject(false)
-          })
-      })
+            console.error(err);
+            reject(false);
+          });
+      });
     },
     removingFile(file, fileList) {
-      this.stepOneForm.file = null
-      this.fileList = []
-      console.log(file.name)
-      console.log(fileList.length)
+      this.cancelTokenSource.cancel();
+      this.stepOneForm.file = null;
+      this.fileList = [];
     },
     fileChanged(file, fileList) {
-      if (file.status === 'success') {
-        this.stepOneForm.file = file.name
-        console.log('file: ', file)
-        this.fileList.push(file)
+      if (file.status === "ready") {
+        var fileUrl = window.URL.createObjectURL(file.raw);
+          this.$refs.videoFile.src = fileUrl;
+        this.stepOneForm.file = file;
+        console.log("file: ", file);
+        this.fileList.push(file);
         if (this.fileList.length > 1) {
-          const a = this.fileList.shift()
+          const a = this.fileList.shift();
           deleteResource(a.name)
             .then((res) => {
-              console.log(res.data)
+              console.log(res.data);
             })
-            .catch((err) => console.error(err))
+            .catch((err) => console.error(err));
         }
-        this.$store.commit('newCourse/SET_COURSE_PREVIEW_VIDEO', file.name)
+        this.$store.commit("newCourse/SET_COURSE_PREVIEW_VIDEO", file);
       }
       // set preview video of course
     },
     setInfoToState() {
-      this.$store.commit('newCourse/SET_COURSE_TEXT_INFO', this.stepOneForm)
+      this.$store.commit("newCourse/SET_COURSE_TEXT_INFO", this.stepOneForm);
     },
     validateForm() {
-      let validVal = false
+      let validVal = false;
       this.$refs.stepOneFormRef.validate((valid) => {
-        validVal = valid && this.fileList.length > 0
-        console.log(this.fileList.length > 0)
+        validVal = valid && this.fileList.length > 0;
+        console.log(this.fileList.length > 0);
         if (!valid) {
-          return false
+          return false;
         } else {
-          this.setInfoToState()
+          this.setInfoToState();
         }
-      })
-      return validVal
-    }
-  }
-}
+      });
+      return validVal;
+    },
+  },
+};
 </script>
 
 <style>
 /* .step-one-body {
   border: 1px solid red;
 } */
+
+.progressBar {
+  width: 15rem !important;
+}
 </style>
