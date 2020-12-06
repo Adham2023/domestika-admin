@@ -3,7 +3,8 @@ const state = {
     courseTitle: '',
     courseDescription: '',
     coursePreviewVideo: null,
-    coursePrice: null 
+    coursePrice: null,
+    localPlayUrl: ''
   },
   chapters: [],
   allResources: {},
@@ -14,7 +15,8 @@ const state = {
   currentEditingUnitId: '',
   currentChapterId: '',
   currentUnitId: '',
-  percentage: 0
+  percentage: 0,
+  dataToSend: {}
 }
 
 const mutations = {
@@ -102,6 +104,42 @@ const mutations = {
     state.courseInfo.courseTitle = info.courseTitle
     state.courseInfo.courseDescription = info.description
     state.courseInfo.coursePrice = info.price
+    state.courseInfo.localPlayUrl = info.localPlayUrl
+    state.courseInfo.videoFileName = info.videoFileName
+    // alert(info.localPlayUrl);
+  },
+  prepareData(state) {
+    // 1 set up Course object
+    const courseObject = {}
+    courseObject.coursePreviewVideo = state.courseInfo.coursePreviewVideo.name
+    courseObject.course = state.courseInfo.coursePreviewVideo.name
+    courseObject.courseTitle = state.courseInfo.courseTitle
+    courseObject.courseDescription = state.courseInfo.courseDescription
+    // done with course info placement
+    const courseChaptersArray = []
+    let chapterUnitsArray = []
+    let courseChapterObject = {}
+    let unitObject = {}
+    state.chapters.forEach(chapter => {
+      courseChapterObject = {}
+      chapterUnitsArray = []
+      courseChapterObject.chapterTitle = chapter.chapterTitle
+      courseChapterObject.chapterDescription = chapter.chapterDescription
+      chapter.units.forEach(unit => {
+        unitObject = {}
+        unitObject.unitTitle = unit.unitTitle
+        unitObject.unitDescription = unit.unitDescription
+        unitObject.videoFileName = unit.videoFileName
+        unitObject.unitResourcesNames = unit.unitResourcesNames
+        chapterUnitsArray.push(unitObject)
+      })
+      courseChapterObject.units = chapterUnitsArray
+      courseChaptersArray.push(courseChapterObject)
+    })
+    state.dataToSend = {
+      courseObject,
+      courseChaptersArray
+    }
   }
 }
 

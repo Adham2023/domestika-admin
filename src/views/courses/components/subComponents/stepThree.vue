@@ -194,7 +194,10 @@ export default {
         unitTitle: '',
         unitDescription: '',
         unitResources: [],
-        unitVideo: ''
+        unitResourcesNames: [],
+        unitVideo: '',
+        localPlayUrl: '',
+        videoFileName: ''
       },
       cancelTokenSource: {},
       fileList: [],
@@ -284,6 +287,8 @@ export default {
     removingUnitVideo(file, fileList) {
       this.cancelTokenSource[file.name].cancel()
       this.newUnit.unitVideo = null
+      this.newUnit.videoFileName = ''
+      this.newUnit.localPlayUrl = ''
       this.fileList = []
       this.deleteFile(file.name)
       this.$refs.addUnitFormRef.validate((valid) => {
@@ -308,9 +313,15 @@ export default {
           })
         })
     },
+    getLocalUrl(file) {
+      var fileUrl = window.URL.createObjectURL(file.raw)
+      return fileUrl
+    },
     fileChanged(file, fileList) {
       if (file.status === 'ready') {
         this.newUnit.unitVideo = file
+        this.newUnit.localPlayUrl = this.getLocalUrl(file)
+        this.newUnit.videoFileName = file.name
         this.fileList.push(file)
         if (this.fileList.length > 1) {
           const a = this.fileList.shift()
@@ -329,13 +340,17 @@ export default {
       console.log('resources: ')
       this.resourceFileList.forEach((item) => {
         this.newUnit.unitResources.push(item)
+        this.newUnit.unitResourcesNames.push(item.name)
       })
       const newUnitObj = {
         chapterId: this.currentChapterID,
         unitTitle: this.newUnit.unitTitle,
         unitDescription: this.newUnit.unitDescription,
         unitResources: this.newUnit.unitResources,
-        unitVideo: this.newUnit.unitVideo
+        unitResourcesNames: this.newUnit.unitResourcesNames,
+        unitVideo: this.newUnit.unitVideo,
+        localPlayUrl: this.newUnit.localPlayUrl,
+        videoFileName: this.newUnit.videoFileName
       }
       this.$store.commit('newCourse/ADD_UNIT', newUnitObj)
       this.cancelAddingUnit()
@@ -347,7 +362,10 @@ export default {
         unitTitle: '',
         unitDescription: '',
         unitResources: [],
-        unitVideo: null
+        unitVideo: null,
+        videoFileName: '',
+        localPlayUrl: '',
+        unitResourcesNames: []
       }
       this.fileList = []
       this.resourceFileList = []

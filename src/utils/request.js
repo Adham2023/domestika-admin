@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { Message } from 'element-ui'
 import store from '@/store'
+import router from '@/router'
 import localStorageService from '@/utils/LocalStorageService'
 const lcStorage = localStorageService.getService()
 // create an axios instance
@@ -33,15 +34,21 @@ service.interceptors.response.use(
     url = url[url.length - 1]
     const statusCode = error.response.status
     if (statusCode === 401 && url !== 'refresh-access-token') {
-      const response = await service({
-        url: '/admin/refresh-access-token',
-        method: 'POST',
-        data: {
-          refreshToken: lcStorage.getRefreshToken()
-        }
-      })
-      lcStorage.setAccessToken(response.data.accessToken)
-      return service(error.config)
+      try {
+        const response = await service({
+          url: '/admin/refresh-access-token',
+          method: 'POST',
+          data: {
+            refreshToken: lcStorage.getRefreshToken()
+          }
+        })
+        lcStorage.setAccessToken(response.data.accessToken)
+        return service(error.config)
+      } catch (error) {
+        console.log('error 403')
+        await store.dispatch('user/resetToken')
+        router.push({ path: `/login?redirect=${store.state.app.toPath}` })
+      }
     }
     Message({
       message: error.message,

@@ -1,9 +1,10 @@
 <template>
   <div>
+    <el-button @click="prepareAll()">prepare</el-button>
     <vueJsonPretty
-    :showLine="true"
-    :path="'res'"
-      :data="[$store.state.newCourse.courseInfo, $store.state.newCourse.chapters]"
+      :show-line="true"
+      :path="'res'"
+      :data="[$store.state.newCourse.dataToSend]"
     />
   </div>
 </template>
@@ -14,6 +15,11 @@ import 'vue-json-pretty/lib/styles.css'
 export default {
   components: {
     vueJsonPretty
+  },
+  methods: {
+    prepareAll() {
+      this.$store.commit('newCourse/prepareData')
+    }
   }
 }
 </script>
