@@ -34,7 +34,8 @@
                   :before-remove="E_checkIfResouceCanBeDeleted"
                   :on-remove="E_removingUnitVideo"
                   accept="video/*"
-                  :action="uploadUrl + '/course/uploadResource'"
+                  action="string"
+                  :http-request="uploadResouces"
                   :file-list="E_fileList"
                   :multiple="false"
                   :on-change="E_fileChanged"
@@ -66,7 +67,8 @@
                   :auto-upload="true"
                   :multiple="true"
                   name="resource"
-                  :action="uploadUrl + '/course/uploadResource'"
+                  action="string"
+                  :http-request="uploadResouces"
                   :on-change="E_resourceSelected"
                   :on-remove="E_resFileRemoved"
                   :file-list="E_resource_FileList"
@@ -101,7 +103,8 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { deleteResource } from '@/api/courses'
+import { deleteResource, uploadResource } from '@/api/courses'
+import axios from 'axios'
 export default {
   data() {
     return {
@@ -109,12 +112,15 @@ export default {
       addUnitDialog: false,
       currentChapterIndex: 0,
       currentUnitIndex: 0,
-      uploadUrl: process.env.VUE_APP_BASE_API,
+      cancelTokenSource: {},
       E_newUnit: {
         unitTitle: '',
         unitDescription: '',
         unitResources: [],
-        unitVideo: ''
+        unitResourcesNames: [],
+        unitVideo: '',
+        videoFileName: '',
+        localPlayUrl: ''
       },
       E_fileList: [],
       E_resource_FileList: [],
@@ -153,14 +159,29 @@ export default {
     }
   },
   methods: {
+    uploadResouces(param) {
+      this.cancelTokenSource[param.file.name] = axios.CancelToken.source()
+      const uploadData = new FormData()
+      uploadData.append('resource', param.file)
+      console.log('this is upload data: ', uploadData)
+      uploadResource({
+        cancelTokenSource: this.cancelTokenSource[param.file.name],
+        formData: uploadData
+      })
+        .then((res) => {
+          console.log(res.data)
+          param.onSuccess()
+        })
+        .catch((err) => {
+          param.onError(err)
+        })
+    },
     editUnitDialogOpened() {
       const indexOfchapterIs = this.$store
         .state
         .newCourse
         .chapters.findIndex(chapter =>
-          chapter.id ===
-                                                    this.$store.state.newCourse.currentChapterId)
-
+          chapter.id === this.$store.state.newCourse.currentChapterId)
       const units = this.$store.state.newCourse.chapters[indexOfchapterIs].units
       const indexOfUnitIs = units.findIndex(unit => unit.id === this.$store.state.newCourse.currentUnitId)
       const thisUnitIs = units[indexOfUnitIs]
@@ -168,7 +189,9 @@ export default {
       objectForEditUnit.unitTitle = thisUnitIs.unitTitle + ''
       objectForEditUnit.unitDescription = thisUnitIs.unitDescription + ''
       objectForEditUnit.unitResources = thisUnitIs.unitResources
+      objectForEditUnit.unitResourcesNames = thisUnitIs.unitResourcesNames
       objectForEditUnit.unitVideo = thisUnitIs.unitVideo
+      objectForEditUnit.videoFileName = thisUnitIs.videoFileName
       this.E_fileList = [thisUnitIs.unitVideo]
       this.E_resource_FileList = [...thisUnitIs.unitResources]
       this.E_newUnit = { ...objectForEditUnit }
@@ -193,6 +216,7 @@ export default {
     },
     E_resFileRemoved(file, E_fileList) {
       this.E_resource_FileList = E_fileList
+      this.cancelTokenSource[file.name].cancel()
       deleteResource(file.name)
         .then((res) => {
           this.$notify({
@@ -210,16 +234,25 @@ export default {
         })
     },
     E_removingUnitVideo(file, E_fileList) {
+      this.cancelTokenSource[file.name].cancel()
       this.E_newUnit.unitVideo = null
       this.E_fileList = []
+      this.newUnit.videoFileName = ''
+      this.newUnit.localPlayUrl = ''
       this.$refs.E_addUnitFormRef.validate((valid) => {
         if (!valid) return false
         // this.addUnit();
       })
     },
+    getLocalUrl(file) {
+      var fileUrl = window.URL.createObjectURL(file.raw)
+      return fileUrl
+    },
     E_fileChanged(file, E_fileList) {
-      if (file.status === 'success') {
+      if (file.status === 'ready') {
         this.E_newUnit.unitVideo = file
+        this.E_newUnit.localPlayUrl = this.getLocalUrl(file)
+        this.E_newUnit.videoFileName = file.name
         this.E_fileList.push(file)
         if (this.E_fileList.length > 1) {
           const a = this.E_fileList.shift()
@@ -240,18 +273,24 @@ export default {
     chapterChanged(chapter) {},
     saveEdits() {
       this.E_newUnit.unitResources = []
+      this.E_newUnit.unitResourcesNames = []
       console.log('resources: ')
       this.E_resource_FileList.forEach((item) => {
         console.dir(item)
         this.E_newUnit.unitResources.push(item)
+        this.E_newUnit.unitResourcesNames.push(item.name)
       })
+      this.E_newUnit.localPlayUrl = this.getLocalUrl(this.E_newUnit.unitVideo)
       const E_newUnitObj = {
         unitTitle: this.E_newUnit.unitTitle,
         unitDescription: this.E_newUnit.unitDescription,
         unitResources: this.E_newUnit.unitResources,
         unitVideo: this.E_newUnit.unitVideo,
         chapterIndex: this.currentChapterIndex,
-        unitIndex: this.currentUnitIndex
+        unitIndex: this.currentUnitIndex,
+        localPlayUrl: this.E_newUnit.localPlayUrl,
+        unitResourcesNames: this.E_newUnit.unitResourcesNames,
+        videoFileName: this.E_newUnit.videoFileName
       }
       console.log('E_newUnitObj: ', E_newUnitObj)
       this.$store.commit('newCourse/EDIT_UNIT', E_newUnitObj)
@@ -264,7 +303,10 @@ export default {
         unitTitle: '',
         unitDescription: '',
         unitResources: [],
-        unitVideo: null
+        unitVideo: null,
+        videoFileName: '',
+        localPlayUrl: '',
+        unitResourcesNames: []
       }
       this.E_fileList = []
       this.E_resource_FileList = []

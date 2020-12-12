@@ -16,10 +16,12 @@ const state = {
   currentChapterId: '',
   currentUnitId: '',
   percentage: 0,
-  dataToSend: {}
+  dataToSend: {},
+  isShowingCourseOverview: true
 }
 
 const mutations = {
+  TOGLLE_PREVIEWMODE(state, toggle) { state.isShowingCourseOverview = toggle },
   set_precentage(state, percentage) {
     state.percentage = percentage
   },
@@ -91,30 +93,51 @@ const mutations = {
     state
       .chapters[unitEditObj
         .chapterIndex]
+      .units[unitEditObj.unitIndex].unitResourcesNames = unitEditObj.unitResourcesNames
+    state
+      .chapters[unitEditObj
+        .chapterIndex]
       .units[unitEditObj.unitIndex].unitResources = unitEditObj.unitResources
+
     state
       .chapters[unitEditObj
         .chapterIndex]
       .units[unitEditObj.unitIndex].unitVideo = unitEditObj.unitVideo
+    state
+      .chapters[unitEditObj
+        .chapterIndex]
+      .units[unitEditObj.unitIndex].videoFileName = unitEditObj.videoFileName
+    state
+      .chapters[unitEditObj
+        .chapterIndex]
+      .units[unitEditObj.unitIndex].localPlayUrl = unitEditObj.localPlayUrl
   },
   SET_COURSE_PREVIEW_VIDEO(state, video) {
     state.courseInfo.coursePreviewVideo = video
   },
+  SET_THUMBNAIL_OF_VIDEO(state, image) {
+    state.courseInfo.coursePreviewVideoThumbnail = image.name
+  },
   SET_COURSE_TEXT_INFO(state, info) {
+    alert(info.localImgUrl)
     state.courseInfo.courseTitle = info.courseTitle
     state.courseInfo.courseDescription = info.description
     state.courseInfo.coursePrice = info.price
     state.courseInfo.localPlayUrl = info.localPlayUrl
     state.courseInfo.videoFileName = info.videoFileName
+    state.courseInfo.localImageUrl = info.localImgUrl
     // alert(info.localPlayUrl);
   },
   prepareData(state) {
     // 1 set up Course object
     const courseObject = {}
     courseObject.coursePreviewVideo = state.courseInfo.coursePreviewVideo.name
-    courseObject.course = state.courseInfo.coursePreviewVideo.name
+    courseObject.coursePreviewVideoThumbnail = state.courseInfo.coursePreviewVideoThumbnail
+    courseObject.coursePrice = state.courseInfo.coursePrice
     courseObject.courseTitle = state.courseInfo.courseTitle
     courseObject.courseDescription = state.courseInfo.courseDescription
+    courseObject.localPlayUrl = state.courseInfo.localPlayUrl
+    courseObject.localImageUrl = state.courseInfo.localImageUrl
     // done with course info placement
     const courseChaptersArray = []
     let chapterUnitsArray = []
@@ -124,12 +147,16 @@ const mutations = {
       courseChapterObject = {}
       chapterUnitsArray = []
       courseChapterObject.chapterTitle = chapter.chapterTitle
+      courseChapterObject.id = chapter.id
       courseChapterObject.chapterDescription = chapter.chapterDescription
       chapter.units.forEach(unit => {
         unitObject = {}
         unitObject.unitTitle = unit.unitTitle
+        unitObject.chapterId = unit.chapterId
+        unitObject.id = unit.id
         unitObject.unitDescription = unit.unitDescription
         unitObject.videoFileName = unit.videoFileName
+        unitObject.localPlayUrl = unit.localPlayUrl
         unitObject.unitResourcesNames = unit.unitResourcesNames
         chapterUnitsArray.push(unitObject)
       })

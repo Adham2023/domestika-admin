@@ -201,7 +201,6 @@ export default {
       },
       cancelTokenSource: {},
       fileList: [],
-      uploadUrl: process.env.VUE_APP_BASE_API,
       resourceFileList: [],
       rules: {
         unitVideo: [

@@ -34,6 +34,13 @@
       >
         <stepFour />
       </tab-content>
+      <tab-content
+        class="tb-cnt"
+        icon="el-icon-finished"
+        title="Raw data"
+      >
+        <stepFive />
+      </tab-content>
       <!-- <div  slot-scope="props" slot="custom-buttons-left">  -->
       <el-button
         v-if="counter > 0"
@@ -64,6 +71,7 @@ import stepOne from './subComponents/stepOne'
 import stepTwo from './subComponents/stepTwo'
 import stepThree from './subComponents/stepThree'
 import stepFour from './subComponents/stepFour'
+import stepFive from './subComponents/stepFive'
 
 export default {
   components: {
@@ -73,7 +81,8 @@ export default {
     stepOne,
     stepTwo,
     stepThree,
-    stepFour
+    stepFour,
+    stepFive
   },
   data() {
     return {
