@@ -24,13 +24,19 @@
       >
         <stepTwo ref="stepTwoRef" />
       </tab-content>
-      <tab-content class="tb-cnt" icon="el-icon-document-add" title="Add units">
+      <tab-content
+        class="tb-cnt"
+        icon="el-icon-document-add"
+        title="Add units"
+        :before-change="inStepThree"
+      >
         <stepThree />
       </tab-content>
       <tab-content
         class="tb-cnt"
         icon="el-icon-finished"
         title="Preview and Save"
+        :before-change="inStepFour"
       >
         <stepFour />
       </tab-content>
@@ -58,24 +64,27 @@
         </span>
       </el-dialog>
     </form-wizard>
-    <Progress :index="0" />
+    <!-- <Progress :index="0" /> -->
+    <finish res="finishAllRef" />
   </div>
 </template>
 
 <script>
 import { FormWizard, TabContent } from 'vue-form-wizard'
 import 'vue-form-wizard/dist/vue-form-wizard.min.css'
-import Progress from '@/components/Progress'
+// import Progress from '@/components/Progress'
 // steps
 import stepOne from './subComponents/stepOne'
 import stepTwo from './subComponents/stepTwo'
 import stepThree from './subComponents/stepThree'
 import stepFour from './subComponents/stepFour'
 import stepFive from './subComponents/stepFive'
+import finish from './subComponents/finish'
 
 export default {
   components: {
-    Progress,
+    finish,
+    // Progress,
     FormWizard,
     TabContent,
     stepOne,
@@ -91,15 +100,26 @@ export default {
     }
   },
   methods: {
+    inStepFour() {
+      return new Promise((resolve, reject) => {
+        this.$store.commit('newCourse/SET_ALL_RESOURCES')
+        this.$store.commit('newCourse/SET_FINISHING_DIALOG', true)
+          resolve(true)
+          this.confirmed()
+      
+        // this.$store.dispatch('newCourse/sendOneByOne').then(res => {
+        //   resolve(res)
+        // })
+      })
+    },
     confirmed() {
-      this.$refs.formWizardRef.reset()
-      this.counter = 0
-      this.$refs.stepOneRef.resetFields()
-      this.$store.commit('newCourse/RESET_CHAPTERS')
       this.cancelDialogVisible = false
+      this.$refs.formWizardRef.reset()
+      this.$store.commit('newCourse/RESET_CHAPTERS')
+      this.$refs.stepOneRef.resetFields()
+      this.counter = 0
     },
     resetAllForms() {
-      console.dir(this.$refs.formWizardRef)
       this.cancelDialogVisible = true
     },
     checkStepOne() {
@@ -111,6 +131,12 @@ export default {
     checkStepTwo() {
       return new Promise((resolve, reject) => {
         resolve(this.$refs.stepTwoRef.validateStepTwo())
+      })
+    },
+    inStepThree() {
+      return new Promise((resolve, reject) => {
+        this.$store.commit('newCourse/prepareData')
+        resolve(true)
       })
     }
   }

@@ -36,13 +36,13 @@ export default {
     removingImageFile(file, fileImageList) {
       this.cancelTokenSource.cancel()
       this.stepOneForm.imageFile = null
-      this.stepOneForm.localImgUrl = null
+      this.stepOneForm.localImageUrl = null
       this.fileImageList = []
     },
     fileImageChanged(file, fileImageList) {
       if (file.status === 'ready') {
-        this.stepOneForm.localImgUrl = this.getLocalUrl(file)
-        console.log('local image url: ', this.stepOneForm.localImgUrl)
+        this.stepOneForm.localImageUrl = this.getLocalUrl(file)
+        console.log('local image url: ', this.stepOneForm.localImageUrl)
         this.stepOneForm.imageFile = file
         console.log('file: ', file)
         this.fileImageList.push(file)

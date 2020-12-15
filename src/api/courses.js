@@ -24,7 +24,7 @@ export function getACourse(params) {
 
 export function uploadResource(params) {
   return request({
-    cancelToken: params.cancelTokenSource.token,
+    // cancelToken: params.cancelTokenSource.token,
     headers: { 'Content-Type': 'multipart/form-data' },
     onUploadProgress: progress => {
       console.log('progress: ', Math.floor((progress.loaded / progress.total) * 100) + ' %')

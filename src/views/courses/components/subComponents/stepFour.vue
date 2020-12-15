@@ -4,7 +4,7 @@
       border: 0px solid orange;
       height: 100%;
       overflow-y: scroll;
-      padding: 1rem 0;
+      padding: 5rem 0;
     "
   >
     <el-col
@@ -12,7 +12,7 @@
       :sm="{ span: 20, offset: 2 }"
       :lg="{ span: 18, offset: 3 }"
       :xl="{ span: 16, offset: 4 }"
-      style="height: 100%"
+      style=""
     >
       <el-col
         v-if="isShowingCourseOverview"
@@ -20,11 +20,10 @@
         :sm="{ span: 20, offset: 2 }"
         :lg="{ span: 20, offset: 2 }"
         :xl="{ span: 18, offset: 3 }"
-        style="height: 100%"
+        style=" "
       >
-        <courseOverviewCard
-          :local-img-url="dataToSend.courseObject.localImageUrl"
-        />
+        <h3 style="text-align: center">This is course preview card</h3>
+        <courseOverviewCard />
       </el-col>
       <!-- course overview -->
 
@@ -39,7 +38,7 @@
           icon="el-icon-arrow-left"
           @click="$store.commit('newCourse/TOGLLE_PREVIEWMODE', true)"
         >
-          Course card 
+          Course card
         </el-button>
       </el-col>
 
@@ -127,15 +126,15 @@
                 </p>
                 <el-collapse
                   v-if="unit.unitResourcesNames.length > 0"
+                  :key="unit.id"
                   v-model="activeName"
                   style="width: 95%; background-color: rgb(230, 253, 255)"
                   @change="resourceHandle"
-                  :key="unit.id"
                 >
-                  <el-collapse-item :name="ch_index + '-' +  u_index" > 
+                  <el-collapse-item :name="ch_index + '-' + u_index">
                     <template slot="title">
                       <div class="resouce-and-icon">
-                        Resouces <i :class="activeName.includes(ch_index + '-' +  u_index)? 'el-icon-folder-opened' : 'el-icon-folder' " />
+                        Resouces <i :class="activeName.includes(ch_index + '-' + u_index)? 'el-icon-folder-opened' : 'el-icon-folder' " />
                       </div>
                     </template>
                     <li
@@ -182,10 +181,6 @@ export default {
       return this.dataToSend.courseChaptersArray
     },
     currentChapter() {
-      console.log('aaaa:')
-      console.dir(this.dataToSend)
-      console.log(this.currentChapterId)
-      console.dir(this.currentUnitId)
       if (this.dataToSend.courseChaptersArray !== undefined) {
         const index = this.dataToSend.courseChaptersArray.findIndex(
           (chapter) => chapter.id === this.currentChapterId
@@ -199,20 +194,18 @@ export default {
   },
   methods: {
     resourceHandle(r) {
-      console.log(r);
-      if(r.length > 0) {
-        this.activeName = r[r.length - 1];
+      if (r.length > 0) {
+        this.activeName = r[r.length - 1]
       }
       // this.activeName = [this.currentChapterTitle +'-'+this.currentUnitTitle];
     },
     setCurrentVideo(param) {
-      console.log('params: ', param)
       this.currentVideoUrl = param.url
       this.currentChapterId = param.chapterId
       this.currentUnitId = param.id
       this.currentUnitDescription = param.descr
-      this.currentChapterTitle = param.chTitle;
-      this.currentUnitTitle = param.uTitle;
+      this.currentChapterTitle = param.chTitle
+      this.currentUnitTitle = param.uTitle
     }
   }
 }

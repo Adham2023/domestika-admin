@@ -1,3 +1,5 @@
+import { uploadResource } from '@/api/courses'
+
 const state = {
   courseInfo: {
     courseTitle: '',
@@ -7,7 +9,6 @@ const state = {
     localPlayUrl: ''
   },
   chapters: [],
-  allResources: {},
   fileUploadProgress: 0,
   editChapterDialog: false,
   editUnitDialog: false,
@@ -17,10 +18,19 @@ const state = {
   currentUnitId: '',
   percentage: 0,
   dataToSend: {},
-  isShowingCourseOverview: true
+  isShowingCourseOverview: true,
+
+  allResouces: [],
+  counOfAllFiles: 0,
+  countOfSendedFiles: 0,
+  currentSendingFile: '',
+  finishingDialog: false
 }
 
 const mutations = {
+  SET_FINISHING_DIALOG(state, trigger) {
+    state.finishingDialog = trigger
+  },
   TOGLLE_PREVIEWMODE(state, toggle) { state.isShowingCourseOverview = toggle },
   set_precentage(state, percentage) {
     state.percentage = percentage
@@ -116,23 +126,35 @@ const mutations = {
     state.courseInfo.coursePreviewVideo = video
   },
   SET_THUMBNAIL_OF_VIDEO(state, image) {
-    state.courseInfo.coursePreviewVideoThumbnail = image.name
+    if (image) {
+      state.courseInfo.coursePreviewVideoThumbnailName = image.name
+      state.courseInfo.coursePreviewVideoThumbnail = image
+    }
+  },
+  SET_COURSE_TEXT_INFO_RESET(state) {
+    state.courseInfo = {
+      courseTitle: '',
+      courseDescription: '',
+      coursePreviewVideo: null,
+      coursePrice: null,
+      localPlayUrl: ''
+    }
   },
   SET_COURSE_TEXT_INFO(state, info) {
-    alert(info.localImgUrl)
+    // alert(info.localImageUrl)
     state.courseInfo.courseTitle = info.courseTitle
     state.courseInfo.courseDescription = info.description
     state.courseInfo.coursePrice = info.price
     state.courseInfo.localPlayUrl = info.localPlayUrl
     state.courseInfo.videoFileName = info.videoFileName
-    state.courseInfo.localImageUrl = info.localImgUrl
+    state.courseInfo.localImageUrl = info.localImageUrl
     // alert(info.localPlayUrl);
   },
   prepareData(state) {
     // 1 set up Course object
     const courseObject = {}
     courseObject.coursePreviewVideo = state.courseInfo.coursePreviewVideo.name
-    courseObject.coursePreviewVideoThumbnail = state.courseInfo.coursePreviewVideoThumbnail
+    courseObject.coursePreviewVideoThumbnailName = state.courseInfo.coursePreviewVideoThumbnailName
     courseObject.coursePrice = state.courseInfo.coursePrice
     courseObject.courseTitle = state.courseInfo.courseTitle
     courseObject.courseDescription = state.courseInfo.courseDescription
@@ -167,10 +189,56 @@ const mutations = {
       courseObject,
       courseChaptersArray
     }
+  },
+  SET_ALL_RESOURCES(state) {
+    state.allResouces = []
+    state.allResouces.push(state.courseInfo.coursePreviewVideoThumbnail) // push preview image
+    state.allResouces.push(state.courseInfo.coursePreviewVideo) // push preview video
+    state.chapters.forEach(chapter => {
+      chapter.units.forEach(unit => {
+        state.allResouces.push(unit.unitVideo)
+        unit.unitResources.forEach(resource => {
+          state.allResouces.push(resource)
+        })
+      })
+    })
+    console.log(state.allResouces)
+    state.counOfAllFiles = state.allResouces.length
+  },
+  SET_CURRENT_SENDING_FILE(state, fileName) {
+    state.currentSendingFile = fileName
+  },
+  INCREMENT_COUNTER_SENDED_FILES(state) {
+    state.countOfSendedFiles++
   }
 }
 
-const actions = {}
+const actions = {
+  fileSender({ commit }, file) {
+    return new Promise((resolve, reject) => {
+      const uploadData = new FormData()
+      commit('SET_CURRENT_SENDING_FILE', file.name)
+      uploadData.append('resource', file.raw)
+      uploadResource({
+        formData: uploadData
+      })
+        .then((res) => {
+          commit('INCREMENT_COUNTER_SENDED_FILES')
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+  async sendOneByOne({ commit, state, dispatch }) {
+    for (let i = 0; i < state.counOfAllFiles; i++) {
+      commit('SET_CURRENT_SENDING_FILE', state.allResouces[i].name)
+      await dispatch('fileSender', state.allResouces[i])
+    }
+    return Promise.resolve(true)
+  }
+}
 const getters = {
   units: state => chapterId => {
     if (state.chapters.length > 0) {

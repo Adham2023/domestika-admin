@@ -1,28 +1,28 @@
 <template>
   <div class="overview-card">
-    <el-card style="width: 450px; border: 0px solid red" :body-style="{padding: '0px'}">
+    <el-card shadow="hover" style="width: 450px; border: 0px solid red" :body-style="{padding: '0px'}">
       <div class="image-and-play-btn">
-        <img width="450" height="350" :src="dataToSend.courseObject.localImageUrl" class="image">
+        <img width="450" height="350" :src=" !!dataToSend.courseObject ? dataToSend.courseObject.localImageUrl : ''" class="image">
         <el-button class="btn-on-image" type="text" icon="el-icon-video-play" @click="openDialog" />
 
       </div>
       <div>
-        <h3 class="course-title">{{ dataToSend.courseObject.courseTitle }}</h3>
+        <h3 class="course-title">{{ !!dataToSend.courseObject ? dataToSend.courseObject.courseTitle : '' }}</h3>
         <div class="staring-date">
           <span>Starting at: </span>
           <time class="time">{{ currentDate }}</time>
         </div>
         <div class="about">
           <!-- <span style="color: gray; font-weight: bold; display: block; margin-bottom: .4rem">About the course </span> -->
-          {{ dataToSend.courseObject.courseDescription }}
+          {{ !!dataToSend.courseObject ? dataToSend.courseObject.courseDescription : '' }}
         </div>
         <div class="price-and-start-btn">
-          <span class="price-chip"><span style="font-weight: bold">Price:</span> {{ dataToSend.courseObject.coursePrice }} sum</span>
+          <span class="price-chip"><span style="font-weight: bold">Price:</span> {{ !!dataToSend.courseObject ? dataToSend.courseObject.coursePrice : '' }} sum</span>
           <el-button class="start-btn" @click="start()">Start</el-button>
         </div>
       </div>
     </el-card>
-    <previewDialog ref="previewDialog"></previewDialog>
+    <previewDialog ref="previewDialog" />
   </div>
 </template>
 
@@ -30,9 +30,9 @@
 import { mapState } from 'vuex'
 import previewDialog from './previewDialog'
 export default {
-    components: {
-        previewDialog
-    },
+  components: {
+    previewDialog
+  },
   data() {
     return {
       currentDate: new Date().toLocaleDateString('en-US')
@@ -44,11 +44,10 @@ export default {
   methods: {
     start() {
       this.$store.commit('newCourse/TOGLLE_PREVIEWMODE', false)
-     
     },
     openDialog() {
-         this.$refs.previewDialog.toggleDialog(true);
-    }   
+      this.$refs.previewDialog.toggleDialog(true)
+    }
   }
 }
 </script>
@@ -116,10 +115,12 @@ export default {
 }
 
 .btn-on-image {
-    font-size: 5rem ;
+    font-size: 3rem ;
     color: white;
     grid-row: 2 / 3;
      grid-column: 2 /3;
+     background-color: gray;
+     opacity: 50%;
 }
 .image {
     object-fit:cover;

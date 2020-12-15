@@ -103,7 +103,7 @@
                     "
                     class="upload-demo"
                     name="resource"
-                    :auto-upload="true"
+                    :auto-upload="false"
                     :http-request="uploadResouces"
                     :on-remove="removingUnitVideo"
                     accept="video/*"
@@ -138,7 +138,7 @@
                       border-radius: 8px;
                     "
                     class="upload-demo"
-                    :auto-upload="true"
+                    :auto-upload="false"
                     :multiple="true"
                     name="resource"
                     action="string"

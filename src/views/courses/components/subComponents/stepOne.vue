@@ -68,7 +68,7 @@
                 ref="uploadVideo"
                 class="upload-demo"
                 name="resource"
-                :auto-upload="true"
+                :auto-upload="false"
                 :on-remove="removingFile"
                 accept="video/*"
                 :before-remove="checkIfResouceCanBeDeleted"
@@ -105,7 +105,7 @@
                 ref="uploadImage"
                 class="upload-demo"
                 name="resource"
-                :auto-upload="true"
+                :auto-upload="false"
                 :on-remove="removingImageFile"
                 accept="image/*"
                 :before-remove="checkIfImageResouceCanBeDeleted"
@@ -170,7 +170,7 @@ export default {
         localPlayUrl: null,
         videoFileName: '',
         imageFile: null,
-        localImgUrl: null
+        localImageUrl: null
 
       },
       cancelTokenSource: null,
@@ -230,14 +230,10 @@ export default {
       this.fileList = []
       this.$store.commit('newCourse/SET_COURSE_PREVIEW_VIDEO', null)
       this.$store.commit('newCourse/SET_THUMBNAIL_OF_VIDEO', null)
-      this.$store.commit('newCourse/SET_COURSE_TEXT_INFO', {
-        courseTitle: '',
-        description: ''
-      })
+      this.$store.commit('newCourse/SET_COURSE_TEXT_INFO_RESET')
     },
     validateForm() {
       if (this.validateForImageForm() && this.validateForVideoForm()) {
-        console.dir(this.stepOneForm)
         this.$store.commit('newCourse/SET_COURSE_TEXT_INFO', this.stepOneForm)
         return true
       } else {
