@@ -32,9 +32,29 @@
           >
             <el-form-item label="Course price" prop="price">
               <el-input
+                type="number"
+                :min="0"
                 v-model="stepOneForm.price"
                 placeholder="Course price"
               />
+            </el-form-item>
+          </el-col>
+        </el-form-item>
+        <el-form-item>
+          <el-col
+            :sm="{ span: 18, offset: 3 }"
+            :xs="{ span: 24, offset: 0 }"
+            :md="{ span: 20, offset: 2 }"
+            :lg="{ span: 14, offset: 5 }"
+          >
+            <el-form-item label="Starting date" prop="startingDate">
+              <el-date-picker
+                style="width: 100%"
+                placeholder="Starting date"
+                value-format="timestamp"
+                v-model="stepOneForm.startingDate"
+              >
+              </el-date-picker>
             </el-form-item>
           </el-col>
         </el-form-item>
@@ -170,14 +190,21 @@ export default {
         localPlayUrl: null,
         videoFileName: '',
         imageFile: null,
-        localImageUrl: null
-
+        localImageUrl: null,
+        startingDate: null ,
       },
       cancelTokenSource: null,
       uploadUrl: process.env.VUE_APP_BASE_API,
       fileList: [],
       fileImageList: [],
       rules: {
+        startingDate: [
+          {
+            required: true,
+            message: 'Please select starting date',
+            trigger: 'change'
+          }
+        ],
         price: [
           {
             required: true,
@@ -224,16 +251,17 @@ export default {
       var fileUrl = window.URL.createObjectURL(file.raw)
       return fileUrl
     },
-
     resetFields() {
       this.$refs.stepOneFormRef.resetFields()
       this.fileList = []
+      this.fileImageList = []
       this.$store.commit('newCourse/SET_COURSE_PREVIEW_VIDEO', null)
       this.$store.commit('newCourse/SET_THUMBNAIL_OF_VIDEO', null)
       this.$store.commit('newCourse/SET_COURSE_TEXT_INFO_RESET')
     },
     validateForm() {
       if (this.validateForImageForm() && this.validateForVideoForm()) {
+        console.log('starting date: ', this.stepOneForm.startingDate);
         this.$store.commit('newCourse/SET_COURSE_TEXT_INFO', this.stepOneForm)
         return true
       } else {

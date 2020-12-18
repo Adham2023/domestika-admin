@@ -232,9 +232,10 @@ export default {
     ...mapGetters('newCourse', ['units']),
     currentChapterTitle() {
       if (this.currentChapterID !== null) {
-        return this.chapters.find(
+        const chapter = this.chapters.find(
           (chapter) => chapter.id === this.currentChapterID
-        ).chapterTitle
+        )
+        return chapter === undefined ? '' : chapter.chapterTitle
       }
       return ''
     },

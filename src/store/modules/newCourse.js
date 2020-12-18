@@ -1,4 +1,4 @@
-import { uploadResource } from '@/api/courses'
+import { uploadResource, uploadNewCourse } from '@/api/courses'
 
 const state = {
   courseInfo: {
@@ -6,7 +6,8 @@ const state = {
     courseDescription: '',
     coursePreviewVideo: null,
     coursePrice: null,
-    localPlayUrl: ''
+    localPlayUrl: '',
+    startingDate: null, 
   },
   chapters: [],
   fileUploadProgress: 0,
@@ -28,6 +29,35 @@ const state = {
 }
 
 const mutations = {
+  RESET_ALL_DATA_(state) {
+    state = {
+      courseInfo: {
+        courseTitle: '',
+        courseDescription: '',
+        coursePreviewVideo: null,
+        coursePrice: null,
+        localPlayUrl: '',
+        startingDate: null
+      },
+      chapters: [],
+      fileUploadProgress: 0,
+      editChapterDialog: false,
+      editUnitDialog: false,
+      currentEditingChapterId: '',
+      currentEditingUnitId: '',
+      currentChapterId: '',
+      currentUnitId: '',
+      percentage: 0,
+      dataToSend: {},
+      isShowingCourseOverview: true,
+
+      allResouces: [],
+      counOfAllFiles: 0,
+      countOfSendedFiles: 0,
+      currentSendingFile: '',
+      finishingDialog: false
+    }
+  },
   SET_FINISHING_DIALOG(state, trigger) {
     state.finishingDialog = trigger
   },
@@ -137,7 +167,8 @@ const mutations = {
       courseDescription: '',
       coursePreviewVideo: null,
       coursePrice: null,
-      localPlayUrl: ''
+      localPlayUrl: '',
+      startingDate: null, 
     }
   },
   SET_COURSE_TEXT_INFO(state, info) {
@@ -148,6 +179,7 @@ const mutations = {
     state.courseInfo.localPlayUrl = info.localPlayUrl
     state.courseInfo.videoFileName = info.videoFileName
     state.courseInfo.localImageUrl = info.localImageUrl
+    state.courseInfo.startingDate = info.startingDate
     // alert(info.localPlayUrl);
   },
   prepareData(state) {
@@ -160,6 +192,8 @@ const mutations = {
     courseObject.courseDescription = state.courseInfo.courseDescription
     courseObject.localPlayUrl = state.courseInfo.localPlayUrl
     courseObject.localImageUrl = state.courseInfo.localImageUrl
+    courseObject.startingDate = state.courseInfo.startingDate
+
     // done with course info placement
     const courseChaptersArray = []
     let chapterUnitsArray = []
@@ -237,6 +271,15 @@ const actions = {
       await dispatch('fileSender', state.allResouces[i])
     }
     return Promise.resolve(true)
+  },
+  uploadNewCourse({ state }) {
+    return new Promise((resolve, reject) => {
+      uploadNewCourse(state.dataToSend).then(res => {
+        resolve(res)
+      }).catch(err => {
+        reject(err)
+      })
+    })
   }
 }
 const getters = {

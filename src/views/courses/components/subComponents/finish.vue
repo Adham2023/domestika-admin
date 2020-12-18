@@ -19,6 +19,7 @@
 
     </div>
     <div slot="footer">
+      <!-- <el-button @click="cancel()">Cancel</el-button> -->
       <el-button @click="done()">Done</el-button>
     </div>
   </el-dialog>
@@ -38,17 +39,33 @@ export default {
   methods: {
     done() {
       this.$store.commit('newCourse/SET_FINISHING_DIALOG', false)
+      this.$emit('resetAllW')
     },
     opened() {
       this.$store.dispatch('newCourse/sendOneByOne').then(res => {
         console.log('doneeeee')
-      })
-    },
-    finishing() {
-      alert('finishing')
-      return new Promise((resolve, reject) => {
-        this.$store.dispatch('newCourse/sendOneByOne').then(res => {
-          resolve()
+        this.$store.dispatch('newCourse/uploadNewCourse').then(res => {
+          this.done()
+          this.$store.commit('newCourse/RESET_ALL_DATA_')
+          this.$notify({
+            message: res.data.message,
+            type: 'success',
+            duration: 3000
+          })
+        }).catch(err => {
+          console.dir(err)
+          this.$notify({
+            message: 'Error',
+            type: 'error',
+            duration: 3000
+          })
+        })
+      }).catch(err => {
+        console.dir(err)
+        this.$notify({
+          message: 'Error',
+          type: 'error',
+          duration: 3000
         })
       })
     }

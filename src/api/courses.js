@@ -46,3 +46,11 @@ export function deleteResource(fileName) {
     method: 'DELETE'
   })
 }
+
+export function uploadNewCourse(data) {
+  return request({
+    url: '/course/upload-new-course',
+    method: 'POST',
+    data
+  })
+}

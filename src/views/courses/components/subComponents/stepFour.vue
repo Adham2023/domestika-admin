@@ -116,8 +116,6 @@
                     url: unit.localPlayUrl,
                     id: unit.id,
                     chapterId: unit.chapterId,
-                    uTitle: unit.unitTitle,
-                    chTitle: chapter.chapterTitle
                   })
                 "
               >
@@ -167,8 +165,6 @@ export default {
       currentChapterId: 0,
       currentUnitId: 0,
       currentUnitDescription: '',
-      currentChapterTitle: '',
-      currentUnitTitle: '',
       actName: '',
       activeName: [],
       i: 0
@@ -197,15 +193,12 @@ export default {
       if (r.length > 0) {
         this.activeName = r[r.length - 1]
       }
-      // this.activeName = [this.currentChapterTitle +'-'+this.currentUnitTitle];
     },
     setCurrentVideo(param) {
       this.currentVideoUrl = param.url
       this.currentChapterId = param.chapterId
       this.currentUnitId = param.id
       this.currentUnitDescription = param.descr
-      this.currentChapterTitle = param.chTitle
-      this.currentUnitTitle = param.uTitle
     }
   }
 }

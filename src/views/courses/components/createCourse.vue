@@ -7,6 +7,7 @@
       title="New Course"
       subtitle=""
       class="frm-wzrd"
+      @on-complete="onComplete"
     >
       <tab-content
         :before-change="checkStepOne"
@@ -36,26 +37,18 @@
         class="tb-cnt"
         icon="el-icon-finished"
         title="Preview and Save"
-        :before-change="inStepFour"
       >
         <stepFour />
       </tab-content>
-      <tab-content
-        class="tb-cnt"
-        icon="el-icon-finished"
-        title="Raw data"
-      >
-        <stepFive />
-      </tab-content>
-      <!-- <div  slot-scope="props" slot="custom-buttons-left">  -->
       <el-button
         v-if="counter > 0"
         slot="custom-buttons-left"
         size="medium"
         type="danger"
         @click="resetAllForms()"
-      >Cancel</el-button>
-      <!-- </div> -->
+      >Cancel
+      </el-button>
+
       <el-dialog title="" :visible.sync="cancelDialogVisible" width="30%">
         <span>Are you sure want to cancel new course creation?</span>
         <span slot="footer" class="dialog-footer">
@@ -65,7 +58,7 @@
       </el-dialog>
     </form-wizard>
     <!-- <Progress :index="0" /> -->
-    <finish res="finishAllRef" />
+    <finish ref="finishAllRef" @resetAllW="confirmed()" />
   </div>
 </template>
 
@@ -78,7 +71,7 @@ import stepOne from './subComponents/stepOne'
 import stepTwo from './subComponents/stepTwo'
 import stepThree from './subComponents/stepThree'
 import stepFour from './subComponents/stepFour'
-import stepFive from './subComponents/stepFive'
+// import stepFive from "./subComponents/stepFive";
 import finish from './subComponents/finish'
 
 export default {
@@ -90,8 +83,8 @@ export default {
     stepOne,
     stepTwo,
     stepThree,
-    stepFour,
-    stepFive
+    stepFour
+    // stepFive,
   },
   data() {
     return {
@@ -100,17 +93,9 @@ export default {
     }
   },
   methods: {
-    inStepFour() {
-      return new Promise((resolve, reject) => {
-        this.$store.commit('newCourse/SET_ALL_RESOURCES')
-        this.$store.commit('newCourse/SET_FINISHING_DIALOG', true)
-          resolve(true)
-          this.confirmed()
-      
-        // this.$store.dispatch('newCourse/sendOneByOne').then(res => {
-        //   resolve(res)
-        // })
-      })
+    onComplete() {
+      this.$store.commit('newCourse/SET_ALL_RESOURCES')
+      this.$store.commit('newCourse/SET_FINISHING_DIALOG', true)
     },
     confirmed() {
       this.cancelDialogVisible = false
