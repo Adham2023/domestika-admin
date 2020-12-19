@@ -1,15 +1,38 @@
-
+import { getVideoCredentials } from '@/api/video'
 const state = {
-  videoPreviewDialog: false
+  videoPreviewDialog: false,
+  otp: '',
+  playbackInfo: '',
+  Title: ''
 }
 
 const mutations = {
+  SET_VIDEO_TITLE(state, title) {
+    state.Title = title
+  },
   SET_DIALOG(state, status) {
     state.videoPreviewDialog = status
+  },
+  SET_VIDEO_CREDENTIALS(state, credentials) {
+    state.otp = credentials.otp
+    state.playbackInfo = credentials.playbackInfo
   }
 }
 
-const actions = {}
+const actions = {
+  getVideoCredentials({ commit }, videoId) {
+    return new Promise((resolve, reject) => {
+      getVideoCredentials(videoId).then(res => {
+        console.log('video credentials: ', res.data)
+        commit('SET_VIDEO_CREDENTIALS', res.data)
+        resolve()
+      }).catch(err => {
+        console.error(err)
+        reject(err)
+      })
+    })
+  }
+}
 
 export default {
   namespaced: true,

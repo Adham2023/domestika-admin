@@ -7,7 +7,7 @@ const state = {
     coursePreviewVideo: null,
     coursePrice: null,
     localPlayUrl: '',
-    startingDate: null, 
+    startingDate: null
   },
   chapters: [],
   fileUploadProgress: 0,
@@ -168,7 +168,7 @@ const mutations = {
       coursePreviewVideo: null,
       coursePrice: null,
       localPlayUrl: '',
-      startingDate: null, 
+      startingDate: null
     }
   },
   SET_COURSE_TEXT_INFO(state, info) {

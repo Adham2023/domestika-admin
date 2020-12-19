@@ -58,34 +58,29 @@ export const constantRoutes = [
   {
     path: '/courses',
     component: Layout,
-    redirect: '/courses/listofcourses',
+    redirect: '/courses/',
     name: 'Courses',
     meta: { title: 'Courses', icon: 'el-icon-s-help' },
     children: [
       {
-        path: 'listofcourses',
-        name: 'All courses',
-        component: () => import('@/views/courses/components/allCourses'),
+        path: '',
+        component: () => import('@/views/courses/components/allCourses.vue'),
+        name: 'AllCourses',
         meta: { title: 'All Course', icon: 'el-icon-tickets' }
+      },
+      {
+        path: 'course/:id',
+        name: 'singleCourse',
+        component: () => import('@/views/courses/course/index.vue'),
+        meta: { title: 'Course', icon: 'el-icon-tickets' },
+        hidden: true
       },
       {
         path: 'newcourse',
         name: 'New course',
         component: () => import('@/views/courses/components/createCourse'),
         meta: { title: 'New Course', icon: 'el-icon-plus' }
-      },
-      {
-        path: 'course',
-        name: 'Course',
-        hidden: true,
-        component: () => import('@/views/courses/components/singleCourse'),
-        meta: { title: 'Course', icon: 'el-icon-plus' },
-        props: route => {
-          route.meta.title = 'Course / ' + route.query.title
-          return { courseId: route.query.courseId }
-        }
       }
-
     ]
   },
   // 404 page must be placed at the end !!!

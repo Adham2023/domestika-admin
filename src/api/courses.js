@@ -27,7 +27,6 @@ export function uploadResource(params) {
     // cancelToken: params.cancelTokenSource.token,
     headers: { 'Content-Type': 'multipart/form-data' },
     onUploadProgress: progress => {
-      console.log('progress: ', Math.floor((progress.loaded / progress.total) * 100) + ' %')
       store.commit('newCourse/set_precentage', Math.floor((progress.loaded / progress.total) * 100))
     },
     url: '/course/uploadResource',
