@@ -1,6 +1,5 @@
 <template>
   <el-dialog
-    :key="$store.state.video.otp"
     :title="'Course: ' + $store.state.video.Title"
     :visible.sync="$store.state.video.videoPreviewDialog"
     width="50%"

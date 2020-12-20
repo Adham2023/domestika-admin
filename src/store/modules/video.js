@@ -3,10 +3,20 @@ const state = {
   videoPreviewDialog: false,
   otp: '',
   playbackInfo: '',
-  Title: ''
+  Title: '',
+  current: {
+    chapterTitle: '',
+    unitTitle: '',
+    videoId: ''
+  }
 }
 
 const mutations = {
+  SET_CURRENT_OBJECTS(state, obj) {
+    state.current.chapterTitle = obj.chapterTitle
+    state.current.unitTitle = obj.unitTitle
+    state.current.videoId = obj.videoId;
+  },
   SET_VIDEO_TITLE(state, title) {
     state.Title = title
   },
