@@ -7,7 +7,9 @@ const state = {
   current: {
     chapterTitle: '',
     unitTitle: '',
-    videoId: ''
+    videoId: '',
+    chapterDescription: '',
+    unitDescription: ''
   }
 }
 
@@ -16,6 +18,8 @@ const mutations = {
     state.current.chapterTitle = obj.chapterTitle
     state.current.unitTitle = obj.unitTitle
     state.current.videoId = obj.videoId;
+    state.current.unitDescription = obj.unitDescription;
+    state.current.chapterDescription = obj.chapterDescription
   },
   SET_VIDEO_TITLE(state, title) {
     state.Title = title

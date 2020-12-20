@@ -6,7 +6,7 @@
         <el-button style="float: right; padding: 3px 0" type="text" icon="el-icon-edit" />
       </div>
       <div v-for="u in ch.units" :key="u._id" class="uits-list-item">
-        <div class="unit-btn" @click="playUnit({unitTitle: u.unitTitle, videoId: u.video.videoId, chapterTitle: ch.chapterTitle})">{{ u.unitTitle }} </div>
+        <div :class="current.unitTitle === u.unitTitle ? 'active' : ''" class="unit-btn" @click="playUnit({unitDescription: u.unitDescription, chapterDescription: ch.chapterDescription, unitTitle: u.unitTitle, videoId: u.video.videoId, chapterTitle: ch.chapterTitle})">{{ u.unitTitle }} </div>
         <el-collapse class="collapse" v-if="u.unitResourcesNames.length > 0">
           <el-collapse-item title="Resources" name="1">
             <template slot="title">
@@ -36,6 +36,7 @@ export default {
   },
   computed: {
     ...mapState('course', ['course']),
+    ...mapState('video', ['current']),
     chapters() {
       return this.course.courseChaptersArray
     }
@@ -74,9 +75,9 @@ export default {
         padding: .5rem;
     }
     .chapter-card {
-        width: 100%;
+        width: 90%;
         margin-bottom: 1rem;
-        background-color: rgb(241, 241, 241);
+        background-color: rgb(238, 238, 238);
     }
     .chapterTitle {
         font-family: 'PT Sans Caption', sans-serif;
@@ -85,7 +86,7 @@ export default {
     .unit-btn {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: flex-start;
         height: 2.5rem;
         padding: 0 .2rem;
         cursor: pointer;
@@ -96,8 +97,9 @@ export default {
     .unit-btn:hover {
         background-color: rgb(242, 242, 255);
     }
-    .unit-btn.active {
-        background-color: rgb(242, 242, 255);
+    .unit-btn.active::before {
+      content: "\25b6";
+      margin-right: 10px;
     }
     .resource-item {
         display: flex;

@@ -10,12 +10,11 @@
         </div>
       </div>
     </el-col>
-    <el-col :span="16" class="main-part" style="height: calc(100vh - 50px - 5rem); overflow-y: auto">
+    <el-col :span="15" class="main-part" style="height: calc(100vh - 50px - 5rem); overflow-y: auto">
       <!-- video part -->
       <mainPart ref="mainPartRef"/>
-      {{ $store.state.course.course }}
     </el-col>
-    <el-col :span="8"  style="display:flex; align-item: center; flex-flow: column; height: calc(100vh - 50px - 5rem); overflow-y: auto">
+    <el-col :span="9"  style="display:flex; align-item: center; flex-flow: column; height: calc(100vh - 50px - 5rem); overflow-y: auto">
       <chapters @playUnit="playCurrentUnit()"/>
     </el-col>
   </el-row>
@@ -37,7 +36,9 @@ export default {
       this.SET_CURRENT_OBJECTS({
         unitTitle: chapter.units[0].unitTitle,
         videoId: chapter.units[0].video.videoId,
-        chapterTitle: chapter.chapterTitle
+        chapterTitle: chapter.chapterTitle,
+        unitDescription: chapter.units[0].unitDescription,
+        chapterDescription: chapter.chapterDescription
       })
       this.playCurrentUnit();
     }).catch(err => {

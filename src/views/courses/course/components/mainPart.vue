@@ -1,15 +1,25 @@
 <template>
   <div class="mainPart">
     <div class="chapter-and-unit">
-      <span class="ch-title">{{current.chapterTitle}}</span> 
-      <el-divider direction="vertical"></el-divider> 
-      <span class="u-title">{{current.unitTitle}}</span>
+      <span class="ch-title">{{ current.chapterTitle }}</span>
+      <el-divider direction="vertical"></el-divider>
+      <span class="u-title">{{ current.unitTitle }}</span>
     </div>
-    <div
-      id="videoBox"
-      ref="videoBox"
-      style=" max-width: 90%; height: 400px"
-    />
+    <div id="videoBox" ref="videoBox" style="max-width: 100%; height: 400px" />
+    <div class="descriptions">
+      <el-collapse>
+        <el-collapse-item title="Unit: " name="1">
+          <div>
+            {{current.unitDescription}}
+          </div>
+        </el-collapse-item>
+        <el-collapse-item title="Chapter: " name="2">
+          <div>
+            {{current.chapterDescription}}
+          </div>
+        </el-collapse-item>
+      </el-collapse>
+    </div>
   </div>
 </template>
 
@@ -17,7 +27,7 @@
 import { mapActions, mapState } from "vuex";
 export default {
   beforeDestroy() {
-    console.log('Before destroy main');
+    console.log("Before destroy main");
     this.ifPlayingPause();
   },
   computed: {
@@ -53,27 +63,25 @@ export default {
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@700&display=swap");
 
-  .mainPart {
-    padding: 1rem;
-  }
-  #videoBox {
-    aspect-ratio: 16 / 9;
-  }
+.mainPart {
+  padding: 1rem;
+}
+#videoBox {
+  aspect-ratio: 16 / 9;
+}
 
+.chapter-and-unit {
+  margin-bottom: 1rem;
+}
 
-  .chapter-and-unit {
-    margin-bottom: 1rem;
-  }
-
-  .ch-title {
-    font-family: 'Nunito', sans-serif;
-    color: rgb(6, 41, 97);
-  }
-  .u-title {
-    font-family: 'Nunito', sans-serif;
-    color: rgb(2, 49, 124);
-
-  }
+.ch-title {
+  font-family: "Nunito", sans-serif;
+  color: rgb(6, 41, 97);
+}
+.u-title {
+  font-family: "Nunito", sans-serif;
+  color: rgb(2, 49, 124);
+}
 </style>
