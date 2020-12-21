@@ -1,0 +1,19 @@
+nohup: ignoring input
+Listening on 0.0.0.0:80 for ACME challenges, and redirecting to HTTPS
+Listening on 0.0.0.0:443 for secure traffic
+Ready to Serve:
+	 codeforkharezm.com
+ACME Directory URL: https://acme-v02.api.letsencrypt.org/directory
+
+By using this software you (adham.muhammadjonov1923@gmail.com) are agreeing to the following:
+ACME Subscriber Agreement: https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf
+Greenlock/ACME.js Terms of Use: https://rootprojects.org/legal/#terms
+
+Rewriting GET /login?redirect=%2Fdashboard to /index.html
+Rewriting GET /login?redirect=%2Fdashboard to /index.html
+Rewriting GET /login?redirect=%2Fdashboard to /index.html
+Rewriting GET /login?redirect=%2Fdashboard to /index.html
+debug: ignoring servername "208.117.85.142"
+       (it's probably either missing from your config, or a bot)
+set greenlockOptions.notify to override the default logger
+servername_unknown (more info available: servername)
