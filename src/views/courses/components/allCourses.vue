@@ -1,16 +1,27 @@
 <template>
   <div class="app-container">
     <el-row>
-      <el-col :span="14" :offset="5">
+      <el-col 
+            :xl="{span: 12, offset: 6}"
+            :lg="{span: 12, offset: 6}"
+            :md="{span: 18, offset: 3}"
+            :sm="{span: 24, offset: 0}"
+            :xs="{span: 24, offset: 0}"
+      >
         <h2 class="page-title">List of Courses <i :class="listLoading ? 'el-icon-loading': ''" /></h2>
       </el-col>
-      <el-col v-for="i in list" :key="i._id" :span="14" :offset="5">
+      <el-col v-for="i in list" :key="i._id"
+        :xl="{span: 12, offset: 6}"
+        :lg="{span: 14, offset: 5}"
+        :md="{span: 18, offset: 3}"
+        :sm="{span: 24, offset: 0}"
+        :xs="{span: 24, offset: 0}"
+      >
         <el-card shadow="hover" class="card-body" :body-style="{ padding: '1em' }" style="margin-bottom: 1rem">
           <div class="course-card">
             <div class="image-play">
               <el-image
                 class="image"
-                style="width: 250px; height: 200px"
                 :src="getImgUrl(i.coursePreviewVideoThumbnailName)"
                 fit="cover"
               />
@@ -154,6 +165,10 @@ export default {
   flex-flow: row;
 }
 
+
+
+
+
 .card-body {
   border-radius: 8px;
 }
@@ -225,6 +240,8 @@ export default {
   object-fit: cover;
   grid-row: 1 / 4;
   grid-column: 1/ 4;
+  width: 250px;
+  height: 200px;
 }
 
 .play-btn {
@@ -240,4 +257,41 @@ export default {
   align-items: center;
   border-radius: 50%;
 }
+
+
+@media only screen and (max-width: 767px){ /** xs */
+  .course-card {
+    /* border: 1px solid red; */
+    display: flex;
+    flex-flow: column;
+  }
+  .image {
+    object-fit: cover;
+    grid-row: 1 / 4;
+    grid-column: 1/ 4;
+    width: 100%;
+    height: 200px;
+  }
+}
+
+
+@media only screen and (max-width: 767px){ /** sm */
+  
+}
+
+
+@media only screen and (max-width: 767px){ /** md */
+  
+}
+
+
+@media only screen and (max-width: 767px){ /** lg */
+  
+}
+
+
+@media only screen and (max-width: 767px){ /** xl */
+  
+}
+
 </style>

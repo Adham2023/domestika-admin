@@ -7,10 +7,9 @@ export function getCourse(id) {
   })
 }
 
-
 export function downloadFile(f) {
   return request({
-    url: '/course/download/'+f,
+    url: '/course/download/' + f,
     method: 'GET',
     responseType: 'arraybuffer'
   })

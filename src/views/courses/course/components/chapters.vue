@@ -7,12 +7,12 @@
       </div>
       <div v-for="u in ch.units" :key="u._id" class="uits-list-item">
         <div :class="current.unitTitle === u.unitTitle ? 'active' : ''" class="unit-btn" @click="playUnit({unitDescription: u.unitDescription, chapterDescription: ch.chapterDescription, unitTitle: u.unitTitle, videoId: u.video.videoId, chapterTitle: ch.chapterTitle})">{{ u.unitTitle }} </div>
-        <el-collapse class="collapse" v-if="u.unitResourcesNames.length > 0">
+        <el-collapse v-if="u.unitResourcesNames.length > 0" class="collapse">
           <el-collapse-item title="Resources" name="1">
             <template slot="title">
               <div class="collapse-title"><i style="font-size: 14px; margin-right: .3rem" class="el-icon-collection" />Resources</div>
             </template>
-            <div  v-for="(r, i) in u.unitResourcesNames" :key="i" class="resource-item">
+            <div v-for="(r, i) in u.unitResourcesNames" :key="i" class="resource-item">
               <el-button icon="el-icon-download" type="text" @click="donwloadFile(r)"> {{ r }} </el-button>
             </div>
           </el-collapse-item>
@@ -24,7 +24,7 @@
 
 <script>
 import { mapMutations, mapState } from 'vuex'
-import {downloadFile} from '@/api/course'
+import { downloadFile } from '@/api/course'
 export default {
   mounted() {
     // let obj = {}
@@ -44,21 +44,21 @@ export default {
   methods: {
     ...mapMutations('video', ['SET_CURRENT_OBJECTS']),
     playUnit(obj) {
-      this.SET_CURRENT_OBJECTS(obj);
-      this.$emit('playUnit');
+      this.SET_CURRENT_OBJECTS(obj)
+      this.$emit('playUnit')
     },
     donwloadFile(f) {
       downloadFile(f).then(res => {
-        console.log(res);
-        let blob = new Blob([res.data], {type: res.headers['content-type']})
-        let objectURL = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-            link.href = objectURL;
-            link.setAttribute('download', f); //or any other extension
-            document.body.appendChild(link);
-            link.click();
+        console.log(res)
+        const blob = new Blob([res.data], { type: res.headers['content-type'] })
+        const objectURL = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = objectURL
+        link.setAttribute('download', f) // or any other extension
+        document.body.appendChild(link)
+        link.click()
       }).catch(err => {
-        console.error(err);
+        console.error(err)
       })
     }
   }

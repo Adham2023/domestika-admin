@@ -10,12 +10,12 @@
         </div>
       </div>
     </el-col>
-    <el-col :span="15" class="main-part" style="height: calc(100vh - 50px - 5rem); overflow-y: auto">
+    <el-col class="main-part" style="height: calc(100vh - 50px - 5rem); overflow-y: auto">
       <!-- video part -->
-      <mainPart ref="mainPartRef"/>
+      <mainPart ref="mainPartRef" />
     </el-col>
-    <el-col :span="9"  style="display:flex; align-item: center; flex-flow: column; height: calc(100vh - 50px - 5rem); overflow-y: auto">
-      <chapters @playUnit="playCurrentUnit()"/>
+    <el-col :span="9" style="display:flex; align-item: center; flex-flow: column; height: calc(100vh - 50px - 5rem); overflow-y: auto">
+      <chapters hidden-xs-only @playUnit="playCurrentUnit()" />
     </el-col>
   </el-row>
 </template>
@@ -32,7 +32,7 @@ export default {
   mounted() {
     this.GET_COURSE(this.$route.params.id).then(() => {
       console.log('got course', this.course)
-      let chapter = this.course.courseChaptersArray[0];
+      const chapter = this.course.courseChaptersArray[0]
       this.SET_CURRENT_OBJECTS({
         unitTitle: chapter.units[0].unitTitle,
         videoId: chapter.units[0].video.videoId,
@@ -40,7 +40,7 @@ export default {
         unitDescription: chapter.units[0].unitDescription,
         chapterDescription: chapter.chapterDescription
       })
-      this.playCurrentUnit();
+      this.playCurrentUnit()
     }).catch(err => {
       console.error(err)
     })
@@ -52,7 +52,7 @@ export default {
     ...mapMutations('video', ['SET_CURRENT_OBJECTS']),
     ...mapActions('course', ['GET_COURSE']),
     playCurrentUnit() {
-      this.$refs.mainPartRef.playUnit();
+      this.$refs.mainPartRef.playUnit()
     }
   }
 }

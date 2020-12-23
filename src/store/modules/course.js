@@ -1,7 +1,7 @@
 import { getCourse } from '@/api/course'
 const state = {
-  course: {},
-  
+  course: {}
+
 }
 const mutations = {
   SET_CHAPTER_UNIT(state, param) {
@@ -10,8 +10,8 @@ const mutations = {
   },
   SET_COURSE(state, course) {
     state.course = course
-  },
-  
+  }
+
 }
 
 const actions = {
