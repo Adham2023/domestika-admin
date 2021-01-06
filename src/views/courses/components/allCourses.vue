@@ -1,23 +1,32 @@
 <template>
   <div class="app-container">
     <el-row>
-      <el-col 
-            :xl="{span: 12, offset: 6}"
-            :lg="{span: 12, offset: 6}"
-            :md="{span: 18, offset: 3}"
-            :sm="{span: 24, offset: 0}"
-            :xs="{span: 24, offset: 0}"
+      <el-col
+        :xl="{ span: 12, offset: 6 }"
+        :lg="{ span: 12, offset: 6 }"
+        :md="{ span: 18, offset: 3 }"
+        :sm="{ span: 24, offset: 0 }"
+        :xs="{ span: 24, offset: 0 }"
       >
-        <h2 class="page-title">List of Courses <i :class="listLoading ? 'el-icon-loading': ''" /></h2>
+        <h2 class="page-title">
+          List of Courses <i :class="listLoading ? 'el-icon-loading' : ''" />
+        </h2>
       </el-col>
-      <el-col v-for="i in list" :key="i._id"
-        :xl="{span: 12, offset: 6}"
-        :lg="{span: 14, offset: 5}"
-        :md="{span: 18, offset: 3}"
-        :sm="{span: 24, offset: 0}"
-        :xs="{span: 24, offset: 0}"
+      <el-col
+        v-for="(i, index) in list"
+        :key="i._id"
+        :xl="{ span: 12, offset: 6 }"
+        :lg="{ span: 14, offset: 5 }"
+        :md="{ span: 18, offset: 3 }"
+        :sm="{ span: 24, offset: 0 }"
+        :xs="{ span: 24, offset: 0 }"
       >
-        <el-card shadow="hover" class="card-body" :body-style="{ padding: '1em' }" style="margin-bottom: 1rem">
+        <el-card
+          shadow="hover"
+          class="card-body"
+          :body-style="{ padding: '1em' }"
+          style="margin-bottom: 1rem"
+        >
           <div class="course-card">
             <div class="image-play">
               <el-image
@@ -28,19 +37,49 @@
               <el-button
                 class="play-btn"
                 type="text"
-                icon="el-icon-video-play"
-                @click="playPreview({id: i.coursePreviewVideo.videoId, title: i.courseTitle })"
+                :disabled="cur_vid.videoLoading && cur_vid.id === i.videoId"
+                :icon="
+                  cur_vid.videoLoading && cur_vid.id === i.videoId
+                    ? 'el-icon-loading'
+                    : 'el-icon-video-play'
+                "
+                @click="playPreview({ id: i.videoId, title: i.courseTitle })"
               />
             </div>
             <div class="card-content-main">
               <div class="title-and-time">
-                <span class="title">{{ i.courseTitle }}</span>
-                <time
-                  class="starting-date"
-                >starts at:
+                <div class="title-and-actions">
+                  <span class="title">{{ i.courseTitle }}</span>
+                  <div class="actions">
+                    <el-tooltip
+                      class="item"
+                      effect="dark"
+                      content="Edit course info"
+                      placement="top"
+                    >
+                      <el-button
+                        type="text"
+                        icon="el-icon-edit"
+                        @click="setEditCourseInfoDialog(index)"
+                      ></el-button>
+                    </el-tooltip>
+                    <el-tooltip
+                      class="item"
+                      effect="dark"
+                      content="Delete course permanently"
+                      placement="top"
+                    >
+                      <el-button type="text" style="color: red" icon="el-icon-delete"
+                        ></el-button>
+                    </el-tooltip>
+                  </div>
+                </div>
+                <time class="starting-date"
+                  >starts at:
                   <span style="color: black">{{
                     startingDate(i.startingDate)
-                  }}</span></time>
+                  }}</span></time
+                >
               </div>
               <div class="description">
                 <p class="description-cnt">
@@ -49,12 +88,17 @@
                 </p>
               </div>
               <div class="price-and-btn">
-                <span class="p-t">Price: $<span class="price"> {{ i.coursePrice }} </span></span>
+                <span class="p-t"
+                  >Price: $<span class="price">
+                    {{ i.coursePrice }}
+                  </span></span
+                >
                 <el-button
                   class="start-the-course"
                   plain
                   @click="goToCourse(i._id)"
-                >Start</el-button>
+                  >Start</el-button
+                >
               </div>
             </div>
           </div>
@@ -62,101 +106,125 @@
       </el-col>
     </el-row>
     <previewVideo />
+    <editCourseInfo @fetchAllcourse="fetchData()"/>
   </div>
 </template>
 
 <script>
-import { getListOfCourses } from '@/api/courses'
-import previewVideo from './previewVideo'
-import { Message } from 'element-ui'
-import moment from 'moment'
-import { mapActions, mapMutations } from 'vuex'
-import video from '@/store/modules/video'
+import { getListOfCourses } from "@/api/courses";
+import previewVideo from "./previewVideo";
+import { Message } from "element-ui";
+import moment from "moment";
+import { mapActions, mapMutations } from "vuex";
+import editCourseInfo from "../course/components/edits/EditInitInfo";
+import video from "@/store/modules/video";
 export default {
-  name: 'AllCourses',
+  name: "AllCourses",
   components: {
-    previewVideo
+    previewVideo,
+    editCourseInfo,
   },
   data() {
     return {
       list: null,
-      listLoading: true
-    }
+      listLoading: false,
+      cur_vid: {
+        id: "",
+        videoLoading: false,
+      },
+    };
   },
   created() {
-    this.fetchData()
+    this.fetchData();
   },
   methods: {
-    goToCourse(id) {
-      this.$router.push('/courses/course/' + id)
+    setEditCourseInfoDialog(courseIndex) {
+      this.$store.commit("edits/SET_CURRENT_COURSE", this.list[courseIndex]);
+      this.$store.commit("edits/SET_DIALOGS", {
+        name: "editCourseInfoDialog",
+        value: true,
+      });
     },
-    ...mapActions('video', ['getVideoCredentials']),
-    ...mapMutations('video', ['SET_DIALOG', 'SET_VIDEO_CREDENTIALS', 'SET_VIDEO_TITLE']),
+    goToCourse(id) {
+      this.$router.push("/courses/course/" + id);
+    },
+    ...mapActions("video", ["getVideoCredentials"]),
+    ...mapMutations("video", [
+      "SET_DIALOG",
+      "SET_VIDEO_CREDENTIALS",
+      "SET_VIDEO_TITLE",
+    ]),
     playPreview(video) {
-      console.log(video)
-      this.SET_VIDEO_TITLE(video.title)
-      this.SET_VIDEO_CREDENTIALS({ otp: '', playbackIno: '' })
-      this.getVideoCredentials(video.id).then(() => {
-        this.SET_DIALOG(true)
-      }).catch(err => {
-        console.log(err)
-      })
+      console.log(video);
+      this.SET_VIDEO_TITLE(video.title);
+      this.cur_vid.id = video.id;
+
+      this.cur_vid.videoLoading = true;
+      this.SET_VIDEO_CREDENTIALS({ otp: "", playbackIno: "" });
+      this.getVideoCredentials(video.id)
+        .then(() => {
+          this.SET_DIALOG(true);
+          this.cur_vid.videoLoading = false;
+        })
+        .catch((err) => {
+          console.log(err);
+          this.cur_vid.videoLoading = false;
+        });
     },
     getDescription(d) {
-      let dCount = d.split(' ')
+      let dCount = d.split(" ");
       if (dCount.length > 18) {
-        dCount = dCount.splice(0, 19)
-        return dCount.join(' ') + '... '
+        dCount = dCount.splice(0, 19);
+        return dCount.join(" ") + "... ";
       } else {
-        return d
+        return d;
       }
     },
     getImgUrl(name) {
-      return process.env.VUE_APP_BASE_API + '/uploads/' + name
+      return process.env.VUE_APP_BASE_API + "/uploads/" + name;
     },
     startingDate(t) {
-      console.log(t)
-      return moment(t).format('DD.MM.YYYY')
+      console.log(t);
+      return moment(t).format("DD.MM.YYYY");
       // return moment.unix(t).format("MM/DD/YYYY");
     },
     watchPreview() {
-      this.$store.commit('video/SET_DIALOG', true)
+      this.$store.commit("video/SET_DIALOG", true);
     },
     getCourse({ id, title }) {
-      console.log('get course', id, title)
+      console.log("get course", id, title);
       this.$router.push({
-        path: '/courses/course',
-        query: { courseId: id, title }
-      })
+        path: "/courses/course",
+        query: { courseId: id, title },
+      });
     },
     fetchData() {
-      this.listLoading = true
+      this.listLoading = true;
       getListOfCourses()
         .then((response) => {
-          this.list = response.data
-          this.listLoading = false
+          this.list = response.data;
+          this.listLoading = false;
         })
         .catch((err) => {
-          this.listLoading = false
+          this.listLoading = false;
           Message({
-            type: 'error',
+            type: "error",
             message: err.response.data,
-            duration: 3000
-          })
-        })
-    }
-  }
-}
+            duration: 3000,
+          });
+        });
+    },
+  },
+};
 </script>
 
 <style >
-
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600&wght@200display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Mukta:wght@500&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@300&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@600&wght@200display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Mukta:wght@500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Merriweather:wght@300&display=swap");
 
 .page-title {
-  font-family: 'Mukta', sans-serif;
+  font-family: "Mukta", sans-serif;
 }
 
 .course-card {
@@ -165,9 +233,11 @@ export default {
   flex-flow: row;
 }
 
-
-
-
+.title-and-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
 .card-body {
   border-radius: 8px;
@@ -182,11 +252,12 @@ export default {
 }
 .description {
   flex: 1;
-  font-family: 'Nunito', sans-serif;
+  font-family: "Nunito", sans-serif;
   font-weight: 200;
   /* border: 1px solid green; */
 }
-.description-cnt {}
+.description-cnt {
+}
 
 .title {
   display: block;
@@ -194,7 +265,7 @@ export default {
   font-weight: bold;
   margin-bottom: 0.3rem;
   color: rgb(2, 8, 90);
-  font-family: 'Nunito', sans-serif;
+  font-family: "Nunito", sans-serif;
 }
 
 .starting-date {
@@ -209,7 +280,7 @@ export default {
 .p-t {
   display: flex;
   align-items: center;
-  color: gray
+  color: gray;
 }
 .price {
   /* background-color: rgb(246, 254, 255); */
@@ -219,7 +290,7 @@ export default {
   padding: 0.4rem;
   /* border: 1px solid black; */
   border-radius: 5px;
-  font-family: 'Merriweather', serif;
+  font-family: "Merriweather", serif;
 }
 
 .start-the-course {
@@ -258,8 +329,8 @@ export default {
   border-radius: 50%;
 }
 
-
-@media only screen and (max-width: 767px){ /** xs */
+@media only screen and (max-width: 767px) {
+  /** xs */
   .course-card {
     /* border: 1px solid red; */
     display: flex;
@@ -274,24 +345,19 @@ export default {
   }
 }
 
-
-@media only screen and (max-width: 767px){ /** sm */
-  
+@media only screen and (max-width: 767px) {
+  /** sm */
 }
 
-
-@media only screen and (max-width: 767px){ /** md */
-  
+@media only screen and (max-width: 767px) {
+  /** md */
 }
 
-
-@media only screen and (max-width: 767px){ /** lg */
-  
+@media only screen and (max-width: 767px) {
+  /** lg */
 }
 
-
-@media only screen and (max-width: 767px){ /** xl */
-  
+@media only screen and (max-width: 767px) {
+  /** xl */
 }
-
 </style>

@@ -53,3 +53,11 @@ export function uploadNewCourse(data) {
     data
   })
 }
+
+export function editCourseInfo(data) {
+  return request({
+    url: '/course/edit-course-info', 
+    method: 'POST',
+    data, 
+  })
+}

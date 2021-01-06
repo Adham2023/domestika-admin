@@ -45,7 +45,7 @@ service.interceptors.response.use(
         lcStorage.setAccessToken(response.data.accessToken)
         return service(error.config)
       } catch (error) {
-        console.log('error 403')
+        console.log('error 403', error.response.status)
         await store.dispatch('user/resetToken')
         router.push({ path: `/login?redirect=${store.state.app.toPath}` })
       }

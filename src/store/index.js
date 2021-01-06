@@ -6,6 +6,7 @@ import settings from './modules/settings'
 import user from './modules/user'
 import video from './modules/video'
 import course from './modules/course'
+import edits from './modules/edits'
 import newCourse from './modules/newCourse'
 Vue.use(Vuex)
 
@@ -16,6 +17,7 @@ const store = new Vuex.Store({
     user,
     course,
     video,
+    edits,
     newCourse
   },
   getters

@@ -3,10 +3,17 @@
     <el-card v-for="ch in chapters" :key="ch._id" shadow="hover" class="chapter-card">
       <div slot="header" class="clearfix">
         <span class="chapterTitle">{{ ch.chapterTitle }}</span>
-        <el-button style="float: right; padding: 3px 0" type="text" icon="el-icon-edit" />
+        <el-tooltip class="item" effect="dark" content="Edit chapter" placement="top">
+                   <el-button style="float: right; padding: 3px 0" type="text" icon="el-icon-edit" />
+          </el-tooltip>
       </div>
       <div v-for="u in ch.units" :key="u._id" class="uits-list-item">
-        <div :class="current.unitTitle === u.unitTitle ? 'active' : ''" class="unit-btn" @click="playUnit({unitDescription: u.unitDescription, chapterDescription: ch.chapterDescription, unitTitle: u.unitTitle, videoId: u.video.videoId, chapterTitle: ch.chapterTitle})">{{ u.unitTitle }} </div>
+        <div :class="current.unitTitle === u.unitTitle ? 'active' : ''" class="unit-btn" @click="playUnit({unitDescription: u.unitDescription, chapterDescription: ch.chapterDescription, unitTitle: u.unitTitle, videoId: u.videoId, chapterTitle: ch.chapterTitle})">
+          {{ u.unitTitle }}
+          <el-tooltip class="item" effect="dark" content="Edit unit" placement="top">
+            <el-button type="text" icon="el-icon-edit"></el-button>
+          </el-tooltip>
+        </div>
         <el-collapse v-if="u.unitResourcesNames.length > 0" class="collapse">
           <el-collapse-item title="Resources" name="1">
             <template slot="title">
@@ -73,11 +80,12 @@ export default {
         flex-flow: column;
         align-items: center;
         padding: .5rem;
+        border: 0px solid red;
     }
     .chapter-card {
         width: 90%;
         margin-bottom: 1rem;
-        background-color: rgb(238, 238, 238);
+        background-color: rgb(255, 255, 255);
     }
     .chapterTitle {
         font-family: 'PT Sans Caption', sans-serif;
@@ -86,7 +94,7 @@ export default {
     .unit-btn {
         display: flex;
         align-items: center;
-        justify-content: flex-start;
+        justify-content: space-between;
         height: 2.5rem;
         padding: 0 .2rem;
         cursor: pointer;
@@ -108,17 +116,18 @@ export default {
         padding: 0 .5rem;
     }
     .resource-item:hover {
-      background-color: rgb(5, 11, 63);
-      color: white;
+      background-color: rgba(212, 212, 212, 0.267);
+      color: black !important;
     }
+
     .uits-list-item {
       border-radius: 8px;
       overflow: hidden;
-      /* padding: .3rem; */
       margin-bottom: .5rem;
     }
 
     .collapse-title {
       padding: 0 .5rem;
     }
+    
 </style>
