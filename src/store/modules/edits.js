@@ -1,6 +1,8 @@
 const state  = {
     editCourseInfoDialog: false,
-    currentCourse: {}, 
+    editChapterDialog: false,
+    currentCourse: {},
+    currentChapter: {}, 
     newCoursePreviewVideo: null, 
 }
 
@@ -26,6 +28,11 @@ const mutations = {
         state.currentCourse.startingDate = startingDate + ''
         state.currentCourse.videoId = videoId + ''
         state.currentCourse._id = _id + ''
+    },
+    SET_CURRENT_CHAPTER(state, chapter) {
+        state.currentChapter._id = chapter._id;
+        state.currentChapter.chapterTitle = chapter.chapterTitle;
+        state.currentChapter.chapterDescription = chapter.chapterDescription;
     }
 }
 

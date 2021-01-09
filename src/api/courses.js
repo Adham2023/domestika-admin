@@ -57,7 +57,16 @@ export function uploadNewCourse(data) {
 export function editCourseInfo(data) {
   return request({
     url: '/course/edit-course-info', 
-    method: 'POST',
+    method: 'PUT',
     data, 
+  })
+}
+
+
+export function editChapter(data) {
+  return request({
+    url: '/course/edit-chapter', 
+    method: 'PUT',
+    data
   })
 }

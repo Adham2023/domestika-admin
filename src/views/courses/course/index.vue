@@ -72,7 +72,7 @@ export default {
     }
 
     .tools {
-        /* font-size: 24px !important; */
+      /* font-size: 24px !important; */
     }
 
     .main-part::-webkit-scrollbar {

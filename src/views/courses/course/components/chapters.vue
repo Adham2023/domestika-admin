@@ -4,14 +4,14 @@
       <div slot="header" class="clearfix">
         <span class="chapterTitle">{{ ch.chapterTitle }}</span>
         <el-tooltip class="item" effect="dark" content="Edit chapter" placement="top">
-                   <el-button style="float: right; padding: 3px 0" type="text" icon="el-icon-edit" />
+           <el-button style="float: right; padding: 3px 0" type="text" icon="el-icon-edit" @click="setupChapter(ch)" />
           </el-tooltip>
       </div>
       <div v-for="u in ch.units" :key="u._id" class="uits-list-item">
         <div :class="current.unitTitle === u.unitTitle ? 'active' : ''" class="unit-btn" @click="playUnit({unitDescription: u.unitDescription, chapterDescription: ch.chapterDescription, unitTitle: u.unitTitle, videoId: u.videoId, chapterTitle: ch.chapterTitle})">
           {{ u.unitTitle }}
           <el-tooltip class="item" effect="dark" content="Edit unit" placement="top">
-            <el-button type="text" icon="el-icon-edit"></el-button>
+            <el-button type="text" icon="el-icon-edit" ></el-button>
           </el-tooltip>
         </div>
         <el-collapse v-if="u.unitResourcesNames.length > 0" class="collapse">
@@ -26,13 +26,18 @@
         </el-collapse>
       </div>
     </el-card>
+    <EditChapter />
   </div>
 </template>
 
 <script>
 import { mapMutations, mapState } from 'vuex'
 import { downloadFile } from '@/api/course'
+import EditChapter from './edits/EditChapter'
 export default {
+  components: {
+    EditChapter
+  },
   mounted() {
     // let obj = {}
     // obj.chapterTitle = this.chapters[0].chapterTitle
@@ -49,7 +54,13 @@ export default {
     }
   },
   methods: {
+    setupChapter(ch) {
+      let {_id, chapterTitle, chapterDescription} = ch;
+      this.SET_CURRENT_CHAPTER({_id, chapterTitle, chapterDescription})
+      this.SET_DIALOGS({name: "editChapterDialog", value: true});
+    },
     ...mapMutations('video', ['SET_CURRENT_OBJECTS']),
+    ...mapMutations('edits', ['SET_DIALOGS', 'SET_CURRENT_CHAPTER']),
     playUnit(obj) {
       this.SET_CURRENT_OBJECTS(obj)
       this.$emit('playUnit')
