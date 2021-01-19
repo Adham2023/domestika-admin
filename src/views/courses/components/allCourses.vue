@@ -61,7 +61,7 @@
                         type="text"
                         icon="el-icon-edit"
                         @click="setEditCourseInfoDialog(index)"
-                      ></el-button>
+                      />
                     </el-tooltip>
                     <el-tooltip
                       class="item"
@@ -69,17 +69,20 @@
                       content="Delete course permanently"
                       placement="top"
                     >
-                      <el-button type="text" style="color: red" icon="el-icon-delete"
-                        ></el-button>
+                      <el-button
+                        type="text"
+                        style="color: red"
+                        icon="el-icon-delete"
+                      />
                     </el-tooltip>
                   </div>
                 </div>
-                <time class="starting-date"
-                  >starts at:
+                <time
+                  class="starting-date"
+                >starts at:
                   <span style="color: black">{{
                     startingDate(i.startingDate)
-                  }}</span></time
-                >
+                  }}</span></time>
               </div>
               <div class="description">
                 <p class="description-cnt">
@@ -88,17 +91,16 @@
                 </p>
               </div>
               <div class="price-and-btn">
-                <span class="p-t"
-                  >Price: $<span class="price">
-                    {{ i.coursePrice }}
-                  </span></span
-                >
+                <span
+                  class="p-t"
+                >Price: $<span class="price">
+                  {{ i.coursePrice }}
+                </span></span>
                 <el-button
                   class="start-the-course"
                   plain
                   @click="goToCourse(i._id)"
-                  >Start</el-button
-                >
+                >Start</el-button>
               </div>
             </div>
           </div>
@@ -106,116 +108,115 @@
       </el-col>
     </el-row>
     <previewVideo />
-    <editCourseInfo @fetchAllcourse="fetchData()"/>
+    <editCourseInfo @fetchAllcourse="fetchData()" />
   </div>
 </template>
 
 <script>
-import { getListOfCourses } from "@/api/courses";
-import previewVideo from "./previewVideo";
-import { Message } from "element-ui";
-import moment from "moment";
-import { mapActions, mapMutations } from "vuex";
-import editCourseInfo from "../course/components/edits/EditInitInfo";
-import video from "@/store/modules/video";
+import { getListOfCourses } from '@/api/courses'
+import previewVideo from './previewVideo'
+import { Message } from 'element-ui'
+import moment from 'moment'
+import { mapActions, mapMutations } from 'vuex'
+import editCourseInfo from '../course/components/edits/EditInitInfo'
 export default {
-  name: "AllCourses",
+  name: 'AllCourses',
   components: {
     previewVideo,
-    editCourseInfo,
+    editCourseInfo
   },
   data() {
     return {
       list: null,
       listLoading: false,
       cur_vid: {
-        id: "",
-        videoLoading: false,
-      },
-    };
+        id: '',
+        videoLoading: false
+      }
+    }
   },
   created() {
-    this.fetchData();
+    this.fetchData()
   },
   methods: {
     setEditCourseInfoDialog(courseIndex) {
-      this.$store.commit("edits/SET_CURRENT_COURSE", this.list[courseIndex]);
-      this.$store.commit("edits/SET_DIALOGS", {
-        name: "editCourseInfoDialog",
-        value: true,
-      });
+      this.$store.commit('edits/SET_CURRENT_COURSE', this.list[courseIndex])
+      this.$store.commit('edits/SET_DIALOGS', {
+        name: 'editCourseInfoDialog',
+        value: true
+      })
     },
     goToCourse(id) {
-      this.$router.push("/courses/course/" + id);
+      this.$router.push('/courses/course/' + id)
     },
-    ...mapActions("video", ["getVideoCredentials"]),
-    ...mapMutations("video", [
-      "SET_DIALOG",
-      "SET_VIDEO_CREDENTIALS",
-      "SET_VIDEO_TITLE",
+    ...mapActions('video', ['getVideoCredentials']),
+    ...mapMutations('video', [
+      'SET_DIALOG',
+      'SET_VIDEO_CREDENTIALS',
+      'SET_VIDEO_TITLE'
     ]),
     playPreview(video) {
-      console.log(video);
-      this.SET_VIDEO_TITLE(video.title);
-      this.cur_vid.id = video.id;
+      console.log(video)
+      this.SET_VIDEO_TITLE(video.title)
+      this.cur_vid.id = video.id
 
-      this.cur_vid.videoLoading = true;
-      this.SET_VIDEO_CREDENTIALS({ otp: "", playbackIno: "" });
+      this.cur_vid.videoLoading = true
+      this.SET_VIDEO_CREDENTIALS({ otp: '', playbackIno: '' })
       this.getVideoCredentials(video.id)
         .then(() => {
-          this.SET_DIALOG(true);
-          this.cur_vid.videoLoading = false;
+          this.SET_DIALOG(true)
+          this.cur_vid.videoLoading = false
         })
         .catch((err) => {
-          console.log(err);
-          this.cur_vid.videoLoading = false;
-        });
+          console.log(err)
+          this.cur_vid.videoLoading = false
+        })
     },
     getDescription(d) {
-      let dCount = d.split(" ");
+      let dCount = d.split(' ')
       if (dCount.length > 18) {
-        dCount = dCount.splice(0, 19);
-        return dCount.join(" ") + "... ";
+        dCount = dCount.splice(0, 19)
+        return dCount.join(' ') + '... '
       } else {
-        return d;
+        return d
       }
     },
     getImgUrl(name) {
-      return process.env.VUE_APP_BASE_API + "/uploads/" + name;
+      return process.env.VUE_APP_BASE_API + '/uploads/' + name
     },
     startingDate(t) {
-      console.log(t);
-      return moment(t).format("DD.MM.YYYY");
+      console.log(t)
+      return moment(t).format('DD.MM.YYYY')
       // return moment.unix(t).format("MM/DD/YYYY");
     },
     watchPreview() {
-      this.$store.commit("video/SET_DIALOG", true);
+      this.$store.commit('video/SET_DIALOG', true)
     },
     getCourse({ id, title }) {
-      console.log("get course", id, title);
+      console.log('get course', id, title)
       this.$router.push({
-        path: "/courses/course",
-        query: { courseId: id, title },
-      });
+        path: '/courses/course',
+        query: { courseId: id, title }
+      })
     },
     fetchData() {
-      this.listLoading = true;
+      this.listLoading = true
       getListOfCourses()
         .then((response) => {
-          this.list = response.data;
-          this.listLoading = false;
+          this.list = response.data
+          this.listLoading = false
         })
         .catch((err) => {
-          this.listLoading = false;
+          this.listLoading = false
           Message({
-            type: "error",
+            type: 'error',
             message: err.response.data,
-            duration: 3000,
-          });
-        });
-    },
-  },
-};
+            duration: 3000
+          })
+        })
+    }
+  }
+}
 </script>
 
 <style >

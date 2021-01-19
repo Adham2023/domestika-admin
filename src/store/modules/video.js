@@ -36,11 +36,13 @@ const mutations = {
 const actions = {
   getVideoCredentials({ commit }, videoId) {
     return new Promise((resolve, reject) => {
+      commit('SET_VIDEO_CREDENTIALS', { otp: '', playbackInfo: '' })
       getVideoCredentials(videoId).then(res => {
         console.log('video credentials: ', res.data)
         commit('SET_VIDEO_CREDENTIALS', res.data)
         resolve()
       }).catch(err => {
+        commit('SET_VIDEO_CREDENTIALS', { otp: '', playbackInfo: '' })
         console.error(err)
         reject(err)
       })

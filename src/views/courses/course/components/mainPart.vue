@@ -26,12 +26,12 @@
 <script>
 import { mapActions, mapState } from 'vuex'
 export default {
+  computed: {
+    ...mapState('video', ['current'])
+  },
   beforeDestroy() {
     console.log('Before destroy main')
     this.ifPlayingPause()
-  },
-  computed: {
-    ...mapState('video', ['current'])
   },
   methods: {
     ...mapActions('video', ['getVideoCredentials']),

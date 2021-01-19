@@ -10,9 +10,9 @@
       <!-- video part -->
       <mainPart ref="mainPartRef" />
     </el-col>
-    <el-col 
-            :span="9" 
-            style="display:flex; align-item: center; flex-flow: column; height: calc(100vh - 50px - 5rem); overflow-y: auto"
+    <el-col
+      :span="9"
+      style="display:flex; align-item: center; flex-flow: column; height: calc(100vh - 50px - 5rem); overflow-y: auto"
     >
       <chapters hidden-xs-only @playUnit="playCurrentUnit()" />
     </el-col>
@@ -27,6 +27,9 @@ export default {
   components: {
     mainPart,
     chapters
+  },
+  computed: {
+    ...mapState('course', ['course'])
   },
   mounted() {
     this.GET_COURSE(this.$route.params.id).then(() => {
@@ -43,9 +46,6 @@ export default {
     }).catch(err => {
       console.error(err)
     })
-  },
-  computed: {
-    ...mapState('course', ['course'])
   },
   methods: {
     ...mapMutations('video', ['SET_CURRENT_OBJECTS']),

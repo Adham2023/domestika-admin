@@ -3,11 +3,12 @@
     :title="'Course: ' + $store.state.video.Title"
     :visible.sync="$store.state.video.videoPreviewDialog"
     width="50%"
-    :destroy-on-close="false"
+    :destroy-on-close="true"
     @close="close"
     @opened="opened"
   >
-    <div id="embedBox" ref="videoBox" style="width:1280px; max-width:100%;height:400px;" />
+    <videoPLayer :otp="this.$store.state.video.otp" :playback-info="this.$store.state.video.playbackInfo" />
+    <!-- <div id="embedBox" ref="videoBox" style="width:1280px; max-width:100%;height:400px;" /> -->
     <span slot="footer" class="dialog-footer">
       <!-- <el-button @click="close()">Close</el-button> -->
     </span>
@@ -15,8 +16,10 @@
 </template>
 
 <script>
+import videoPLayer from '@/components/Videoplayer/videoplayer'
 export default {
   components: {
+    videoPLayer
   },
   data() {
     return {
@@ -28,19 +31,19 @@ export default {
   },
   methods: {
     close() {
-      this.$store.commit('video/SET_DIALOG', false)
-      var videos = vdo.getObjects()
-      var video = videos[videos.length - 1]
-      video.pause()
+      // this.$store.commit('video/SET_DIALOG', false)
+      // var videos = vdo.getObjects()
+      // var video = videos[videos.length - 1]
+      // video.pause()
     },
     opened() {
       // console.dir(window);
-      vdo.add({
-        otp: this.$store.state.video.otp,
-        playbackInfo: this.$store.state.video.playbackInfo,
-        theme: '9ae8bbe8dd964ddc9bdb932cca1cb59a',
-        container: document.querySelector('#embedBox')
-      })
+      // vdo.add({
+      //   otp: this.$store.state.video.otp,
+      //   playbackInfo: this.$store.state.video.playbackInfo,
+      //   theme: '9ae8bbe8dd964ddc9bdb932cca1cb59a',
+      //   container: document.querySelector('#embedBox')
+      // })
     //   this.video = new VdoPlayer({
     //     otp: this.$store.state.video.otp,
     //     playbackInfo: this.$store.state.video.playbackInfo,
