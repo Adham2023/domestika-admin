@@ -156,7 +156,7 @@ export default {
       'SET_VIDEO_TITLE'
     ]),
     playPreview(video) {
-      console.log(video)
+      console.log('Video: ', video)
       this.SET_VIDEO_TITLE(video.title)
       this.cur_vid.id = video.id
 
