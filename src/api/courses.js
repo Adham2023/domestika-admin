@@ -53,3 +53,19 @@ export function uploadNewCourse(data) {
     data
   })
 }
+
+export function editCourseInfo(data) {
+  return request({
+    url: '/course/edit-course-info',
+    method: 'PUT',
+    data
+  })
+}
+
+export function editChapter(data) {
+  return request({
+    url: '/course/edit-chapter',
+    method: 'PUT',
+    data
+  })
+}

@@ -17,8 +17,8 @@ const mutations = {
   SET_CURRENT_OBJECTS(state, obj) {
     state.current.chapterTitle = obj.chapterTitle
     state.current.unitTitle = obj.unitTitle
-    state.current.videoId = obj.videoId;
-    state.current.unitDescription = obj.unitDescription;
+    state.current.videoId = obj.videoId
+    state.current.unitDescription = obj.unitDescription
     state.current.chapterDescription = obj.chapterDescription
   },
   SET_VIDEO_TITLE(state, title) {
@@ -36,11 +36,13 @@ const mutations = {
 const actions = {
   getVideoCredentials({ commit }, videoId) {
     return new Promise((resolve, reject) => {
+      commit('SET_VIDEO_CREDENTIALS', { otp: '', playbackInfo: '' })
       getVideoCredentials(videoId).then(res => {
         console.log('video credentials: ', res.data)
         commit('SET_VIDEO_CREDENTIALS', res.data)
         resolve()
       }).catch(err => {
+        commit('SET_VIDEO_CREDENTIALS', { otp: '', playbackInfo: '' })
         console.error(err)
         reject(err)
       })
